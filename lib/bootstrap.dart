@@ -37,8 +37,10 @@ Future<void> bootstrap(
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (Firebase.apps.isEmpty) {
+  try {
     await Firebase.initializeApp(options: firebaseOptions);
+  } on FirebaseException catch (e) {
+    if (e.code != 'duplicate-app') rethrow;
   }
   await Hive.initFlutter();
 
