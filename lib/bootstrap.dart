@@ -37,7 +37,9 @@ Future<void> bootstrap(
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(options: firebaseOptions);
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(options: firebaseOptions);
+  }
   await Hive.initFlutter();
 
   await initDependencies(tmdbApiKey: tmdbApiKey);
