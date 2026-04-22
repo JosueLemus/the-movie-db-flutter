@@ -11,6 +11,7 @@ class AppConfig {
 
   static String get tmdbBaseUrl => 'https://api.themoviedb.org/3';
   static String get tmdbImageBaseUrl => 'https://image.tmdb.org/t/p/w500';
+  static String get tmdbBackdropBaseUrl => 'https://image.tmdb.org/t/p/w1280';
 
   // OCP: add new flavors without modifying callers
   static String get flavorName => switch (flavor) {

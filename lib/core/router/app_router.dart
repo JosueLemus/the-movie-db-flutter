@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:the_movie_db/features/movies/presentation/pages/home_page.dart';
+import 'package:the_movie_db/features/movies/presentation/pages/movie_detail_page.dart';
 import 'package:the_movie_db/features/splash/presentation/pages/splash_page.dart';
 
 // OCP: add routes without touching existing ones
@@ -25,7 +26,7 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.movieDetail,
       builder: (context, state) {
         final movieId = int.parse(state.pathParameters['id']!);
-        return Placeholder(key: ValueKey(movieId));
+        return MovieDetailPage(key: ValueKey(movieId), movieId: movieId);
       },
     ),
   ],
