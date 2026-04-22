@@ -8,7 +8,10 @@ environment:
   flutter: ^3.41.0
 
 dependencies:
+  # State management
   bloc: ^9.2.0
+  bloc_concurrency: ^0.3.0
+  equatable: ^2.0.7
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
@@ -16,10 +19,39 @@ dependencies:
     sdk: flutter
   intl: ^0.20.2
 
+  # Networking
+  dio: ^5.9.1
+  pretty_dio_logger: ^1.4.0
+
+  # Firebase
+  cloud_firestore: ^5.6.9
+  firebase_analytics: ^11.4.6
+  firebase_core: ^3.13.1
+  firebase_remote_config: ^5.4.6
+
+  # Local storage
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  shared_preferences: ^2.5.3
+
+  # Navigation
+  go_router: ^14.8.1
+
+  # DI
+  get_it: ^9.2.0
+
+  # UI
+  cached_network_image: ^3.4.1
+  carousel_slider_plus: ^7.1.1
+  flutter_widget_from_html_core: ^0.15.2
+  shimmer: ^3.0.0
+
+  # Connectivity
+  connectivity_plus: ^6.1.4
+
 dev_dependencies:
-  bloc_lint: ^0.4.1
   bloc_test: ^10.0.0
-  bloc_tools: ^0.1.0-dev.23
+  build_runner: ^2.4.13
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.5
