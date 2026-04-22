@@ -115,3 +115,7 @@ app.*.map.json
 
 # Generated l10n files
 lib/l10n/gen/
+
+# Dart defines (contain API keys — never commit)
+.dart_defines/*.json
+!.dart_defines/example.json
