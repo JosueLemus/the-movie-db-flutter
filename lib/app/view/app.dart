@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:the_movie_db/counter/counter.dart';
+import 'package:the_movie_db/core/router/app_router.dart';
 import 'package:the_movie_db/l10n/l10n.dart';
 
 class App extends StatelessWidget {
@@ -7,16 +7,14 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
+      routerConfig: appRouter,
       theme: ThemeData(
-        appBarTheme: AppBarTheme(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF01B4E4)),
         useMaterial3: true,
       ),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const CounterPage(),
     );
   }
 }
