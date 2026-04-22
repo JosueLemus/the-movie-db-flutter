@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "101726534855",
+    "project_id": "the-movie-db-prod",
+    "storage_bucket": "the-movie-db-prod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:101726534855:android:7a17b54c9ce413b56612e2",
+        "android_client_info": {
+          "package_name": "com.josuelemus.the.movie.db"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFt0uqohZ7UGa22xnBmXIskzB6_Mc16S4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
