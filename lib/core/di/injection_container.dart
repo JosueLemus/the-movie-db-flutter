@@ -8,11 +8,16 @@ import 'package:the_movie_db/core/network/dio_client.dart';
 import 'package:the_movie_db/core/services/remote_config_service.dart';
 import 'package:the_movie_db/features/movies/data/datasources/movie_local_datasource.dart';
 import 'package:the_movie_db/features/movies/data/datasources/movie_remote_datasource.dart';
+import 'package:the_movie_db/features/movies/data/datasources/recommendation_remote_datasource.dart';
 import 'package:the_movie_db/features/movies/data/repositories/movie_repository_impl.dart';
+import 'package:the_movie_db/features/movies/data/repositories/recommendation_repository_impl.dart';
 import 'package:the_movie_db/features/movies/domain/repositories/movie_repository.dart';
+import 'package:the_movie_db/features/movies/domain/repositories/recommendation_repository.dart';
+import 'package:the_movie_db/features/movies/domain/usecases/add_recommendation.dart';
 import 'package:the_movie_db/features/movies/domain/usecases/get_genres.dart';
 import 'package:the_movie_db/features/movies/domain/usecases/get_movie_detail.dart';
 import 'package:the_movie_db/features/movies/domain/usecases/get_movies_by_genre.dart';
+import 'package:the_movie_db/features/movies/domain/usecases/get_recommendations.dart';
 import 'package:the_movie_db/features/movies/domain/usecases/is_favorite.dart';
 import 'package:the_movie_db/features/movies/domain/usecases/toggle_favorite.dart';
 import 'package:the_movie_db/features/splash/data/repositories/splash_repository_impl.dart';
@@ -71,7 +76,21 @@ Future<void> _initMovies() async {
     ..registerFactory<ToggleFavorite>(
       () => ToggleFavorite(sl<MovieRepository>()),
     )
-    ..registerFactory<IsFavorite>(() => IsFavorite(sl<MovieRepository>()));
+    ..registerFactory<IsFavorite>(() => IsFavorite(sl<MovieRepository>()))
+    ..registerSingleton<RecommendationRemoteDataSource>(
+      RecommendationRemoteDataSourceImpl(sl<FirebaseFirestore>()),
+    )
+    ..registerFactory<RecommendationRepository>(
+      () => RecommendationRepositoryImpl(
+        sl<RecommendationRemoteDataSource>(),
+      ),
+    )
+    ..registerFactory<GetRecommendations>(
+      () => GetRecommendations(sl<RecommendationRepository>()),
+    )
+    ..registerFactory<AddRecommendation>(
+      () => AddRecommendation(sl<RecommendationRepository>()),
+    );
 }
 
 void _initSplash() {

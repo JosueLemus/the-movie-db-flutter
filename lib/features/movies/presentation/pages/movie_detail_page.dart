@@ -14,6 +14,7 @@ import 'package:the_movie_db/features/movies/presentation/cubit/detail_cubit.dar
 import 'package:the_movie_db/features/movies/presentation/cubit/detail_state.dart';
 import 'package:the_movie_db/features/movies/presentation/widgets/cast_card_widget.dart';
 import 'package:the_movie_db/features/movies/presentation/widgets/image_carousel_widget.dart';
+import 'package:the_movie_db/features/movies/presentation/widgets/recommend_modal.dart';
 
 class MovieDetailPage extends StatelessWidget {
   const MovieDetailPage({required this.movieId, super.key});
@@ -102,6 +103,17 @@ class _LoadedView extends StatelessWidget {
     final cubit = context.read<DetailCubit>();
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => unawaited(
+          showRecommendModal(
+            context,
+            movieId: detail.movie.id,
+            movieTitle: detail.movie.title,
+          ),
+        ),
+        icon: const Icon(Icons.rate_review_outlined),
+        label: const Text('Recommend'),
+      ),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
