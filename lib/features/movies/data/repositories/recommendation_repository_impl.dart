@@ -17,13 +17,16 @@ class RecommendationRepositoryImpl implements RecommendationRepository {
     required int movieId,
     required String movieTitle,
     required String comment,
+    required List<String> tags,
   }) =>
       _remote.addRecommendation(
+        movieId,
         RecommendationModel(
           id: '',
           movieId: movieId,
           movieTitle: movieTitle,
           comment: comment,
+          tags: tags,
           createdAt: DateTime.now(),
         ),
       );

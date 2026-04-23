@@ -7,24 +7,26 @@ class RecommendationModel extends Recommendation {
     required super.movieId,
     required super.movieTitle,
     required super.comment,
+    required super.tags,
     required super.createdAt,
   });
 
-  factory RecommendationModel.fromDoc(DocumentSnapshot doc) {
+  factory RecommendationModel.fromDoc(DocumentSnapshot doc, int movieId) {
     final data = doc.data()! as Map<String, dynamic>;
     return RecommendationModel(
       id: doc.id,
-      movieId: data['movieId'] as int,
-      movieTitle: data['movieTitle'] as String,
-      comment: data['comment'] as String,
+      movieId: movieId,
+      movieTitle: data['movieTitle'] as String? ?? '',
+      comment: data['comment'] as String? ?? '',
+      tags: List<String>.from(data['tags'] as List<dynamic>? ?? []),
       createdAt: (data['createdAt'] as Timestamp).toDate(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'movieId': movieId,
         'movieTitle': movieTitle,
         'comment': comment,
+        'tags': tags,
         'createdAt': Timestamp.fromDate(createdAt),
       };
 }

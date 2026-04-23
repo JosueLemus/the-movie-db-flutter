@@ -6,5 +6,6 @@ abstract interface class RecommendationRepository {
     required int movieId,
     required String movieTitle,
     required String comment,
+    required List<String> tags,
   });
 }

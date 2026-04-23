@@ -9,10 +9,12 @@ class AddRecommendation {
     required int movieId,
     required String movieTitle,
     required String comment,
+    required List<String> tags,
   }) =>
       _repository.addRecommendation(
         movieId: movieId,
         movieTitle: movieTitle,
         comment: comment,
+        tags: tags,
       );
 }

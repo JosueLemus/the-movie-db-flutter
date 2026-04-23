@@ -3,7 +3,7 @@ import 'package:the_movie_db/features/movies/data/models/recommendation_model.da
 
 abstract interface class RecommendationRemoteDataSource {
   Future<List<RecommendationModel>> getRecommendations(int movieId);
-  Future<void> addRecommendation(RecommendationModel recommendation);
+  Future<void> addRecommendation(int movieId, RecommendationModel model);
 }
 
 class RecommendationRemoteDataSourceImpl
@@ -12,20 +12,26 @@ class RecommendationRemoteDataSourceImpl
 
   final FirebaseFirestore _firestore;
 
-  CollectionReference<Map<String, dynamic>> get _collection =>
-      _firestore.collection('recommendations');
+  // Subcollection: recommendations/{movieId}/entries/{docId}
+  // No composite index needed — single-field createdAt index is auto-created.
+  CollectionReference<Map<String, dynamic>> _entries(int movieId) =>
+      _firestore
+          .collection('recommendations')
+          .doc('$movieId')
+          .collection('entries');
 
   @override
   Future<List<RecommendationModel>> getRecommendations(int movieId) async {
-    final snapshot = await _collection
-        .where('movieId', isEqualTo: movieId)
+    final snapshot = await _entries(movieId)
         .orderBy('createdAt', descending: true)
         .get();
 
-    return snapshot.docs.map(RecommendationModel.fromDoc).toList();
+    return snapshot.docs
+        .map((doc) => RecommendationModel.fromDoc(doc, movieId))
+        .toList();
   }
 
   @override
-  Future<void> addRecommendation(RecommendationModel recommendation) =>
-      _collection.add(recommendation.toJson());
+  Future<void> addRecommendation(int movieId, RecommendationModel model) =>
+      _entries(movieId).add(model.toJson());
 }

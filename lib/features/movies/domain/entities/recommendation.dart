@@ -6,6 +6,7 @@ class Recommendation extends Equatable {
     required this.movieId,
     required this.movieTitle,
     required this.comment,
+    required this.tags,
     required this.createdAt,
   });
 
@@ -13,8 +14,10 @@ class Recommendation extends Equatable {
   final int movieId;
   final String movieTitle;
   final String comment;
+  final List<String> tags;
   final DateTime createdAt;
 
   @override
-  List<Object?> get props => [id, movieId, movieTitle, comment, createdAt];
+  List<Object?> get props =>
+      [id, movieId, movieTitle, comment, tags, createdAt];
 }

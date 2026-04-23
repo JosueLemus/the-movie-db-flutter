@@ -33,16 +33,17 @@ class RecommendCubit extends Cubit<RecommendState> {
     required int movieId,
     required String movieTitle,
     required String comment,
+    required List<String> tags,
   }) async {
-    if (comment.trim().isEmpty) return;
+    if (comment.trim().isEmpty && tags.isEmpty) return;
     emit(state.copyWith(status: RecommendStatus.submitting));
     try {
       await _addRecommendation(
         movieId: movieId,
         movieTitle: movieTitle,
         comment: comment.trim(),
+        tags: tags,
       );
-      // Reload to include the new entry
       final items = await _getRecommendations(movieId);
       emit(
         state.copyWith(

@@ -105,11 +105,7 @@ class _LoadedView extends StatelessWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => unawaited(
-          showRecommendModal(
-            context,
-            movieId: detail.movie.id,
-            movieTitle: detail.movie.title,
-          ),
+          showRecommendModal(context, movie: detail.movie),
         ),
         icon: const Icon(Icons.rate_review_outlined),
         label: const Text('Recommend'),
