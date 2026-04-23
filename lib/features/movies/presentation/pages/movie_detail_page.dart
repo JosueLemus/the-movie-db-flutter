@@ -15,7 +15,6 @@ import 'package:the_movie_db/features/movies/domain/usecases/toggle_favorite.dar
 import 'package:the_movie_db/features/movies/presentation/cubit/detail_cubit.dart';
 import 'package:the_movie_db/features/movies/presentation/cubit/detail_state.dart';
 import 'package:the_movie_db/features/movies/presentation/widgets/cast_card_widget.dart';
-import 'package:the_movie_db/features/movies/presentation/widgets/image_carousel_widget.dart';
 import 'package:the_movie_db/features/movies/presentation/widgets/recommend_modal.dart';
 
 class MovieDetailPage extends StatelessWidget {
@@ -40,39 +39,39 @@ class MovieDetailPage extends StatelessWidget {
   }
 }
 
+// ─── State views
+
 class _DetailView extends StatelessWidget {
   const _DetailView();
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<DetailCubit, DetailState>(
-      builder: (context, state) {
-        return switch (state.status) {
-          DetailStatus.loading => const _LoadingView(),
-          DetailStatus.error => _ErrorView(message: state.error),
-          DetailStatus.loaded => _LoadedView(
-              detail: state.movieDetail!,
-              isFavorite: state.isFavorite,
-            ),
-        };
+      builder: (context, state) => switch (state.status) {
+        DetailStatus.loading => const _LoadingScaffold(),
+        DetailStatus.error => _ErrorScaffold(message: state.error),
+        DetailStatus.loaded => _LoadedScaffold(
+            detail: state.movieDetail!,
+            isFavorite: state.isFavorite,
+          ),
       },
     );
   }
 }
 
-// ─── States
-
-class _LoadingView extends StatelessWidget {
-  const _LoadingView();
+class _LoadingScaffold extends StatelessWidget {
+  const _LoadingScaffold();
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
   }
 }
 
-class _ErrorView extends StatelessWidget {
-  const _ErrorView({this.message});
+class _ErrorScaffold extends StatelessWidget {
+  const _ErrorScaffold({this.message});
 
   final String? message;
 
@@ -94,17 +93,19 @@ class _ErrorView extends StatelessWidget {
   }
 }
 
-// ─── Loaded
+// ─── Main loaded scaffold
 
-class _LoadedView extends StatelessWidget {
-  const _LoadedView({required this.detail, required this.isFavorite});
+class _LoadedScaffold extends StatelessWidget {
+  const _LoadedScaffold({
+    required this.detail,
+    required this.isFavorite,
+  });
 
   final MovieDetail detail;
   final bool isFavorite;
 
-  static const double _carouselHeight = 320;
-  static const double _posterWidth = 100;
-  static const double _posterHeight = 150;
+  // Portrait poster fills ~55% of screen height on average phone.
+  static const double _expandedHeight = 460;
 
   @override
   Widget build(BuildContext context) {
@@ -113,12 +114,10 @@ class _LoadedView extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
-          // ── Collapsing backdrop ──
           SliverAppBar(
-            expandedHeight: _carouselHeight,
+            expandedHeight: _expandedHeight,
             pinned: true,
             stretch: true,
             backgroundColor: cs.surface,
@@ -127,67 +126,35 @@ class _LoadedView extends StatelessWidget {
             actions: [
               IconButton(
                 icon: Icon(
-                  isFavorite ? Icons.favorite_rounded : Icons.favorite_border,
+                  isFavorite
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border,
                   color: Colors.white,
                 ),
                 onPressed: cubit.toggleFavorite,
               ),
               IconButton(
-                icon: const Icon(Icons.share_outlined, color: Colors.white),
+                icon: const Icon(
+                  Icons.share_outlined,
+                  color: Colors.white,
+                ),
                 onPressed: () {},
               ),
               const SizedBox(width: 4),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              stretchModes: const [
-                StretchMode.zoomBackground,
-                StretchMode.blurBackground,
-              ],
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  ImageCarouselWidget(paths: detail.backdropPaths),
-                  // Bottom gradient so title area is readable
-                  Positioned.fill(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withValues(alpha: 0.7),
-                          ],
-                          stops: const [0.5, 1.0],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              background: _PosterHeroHeader(movie: movie),
             ),
           ),
-
-          // ── Content ──
           SliverToBoxAdapter(
-            child: _DetailContent(
-              detail: detail,
-              posterWidth: _posterWidth,
-              posterHeight: _posterHeight,
-              movieId: movie.id,
-              movieTitle: movie.title,
-              movie: movie,
-            ),
+            child: _DetailBody(detail: detail),
           ),
-
-          const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
+          const SliverPadding(padding: EdgeInsets.only(bottom: 120)),
         ],
       ),
-
-      // ── Recommend FAB ──
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => unawaited(
-          showRecommendModal(context, movie: detail.movie),
+          showRecommendModal(context, movie: movie),
         ),
         icon: const Icon(Icons.rate_review_outlined),
         label: const Text('Recommend'),
@@ -196,127 +163,189 @@ class _LoadedView extends StatelessWidget {
   }
 }
 
-// ─── Content body
+// ─── Hero poster header
 
-class _DetailContent extends StatelessWidget {
-  const _DetailContent({
-    required this.detail,
-    required this.posterWidth,
-    required this.posterHeight,
-    required this.movieId,
-    required this.movieTitle,
-    required this.movie,
-  });
+class _PosterHeroHeader extends StatelessWidget {
+  const _PosterHeroHeader({required this.movie});
 
-  final MovieDetail detail;
-  final double posterWidth;
-  final double posterHeight;
-  final int movieId;
-  final String movieTitle;
   final Movie movie;
 
   @override
   Widget build(BuildContext context) {
+    // Prefer backdrop for the header (wider, better composition).
+    // Fall back to poster if no backdrop available.
+    final backdropUrl = movie.backdropPath.isNotEmpty
+        ? '${AppConfig.tmdbBackdropBaseUrl}${movie.backdropPath}'
+        : null;
+    final posterUrl = movie.posterPath.isNotEmpty
+        ? '${AppConfig.tmdbImageBaseUrl}${movie.posterPath}'
+        : null;
+    final imageUrl = backdropUrl ?? posterUrl ?? '';
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Poster with Hero transition (matching tag from MovieCardWidget)
+        Hero(
+          tag: 'movie-poster-${movie.id}',
+          child: CachedNetworkImage(
+            imageUrl: imageUrl,
+            fit: BoxFit.cover,
+            placeholder: (_, _) => ColoredBox(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            ),
+            errorWidget: (_, _, _) => ColoredBox(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              child: const Icon(Icons.movie_outlined, size: 48),
+            ),
+          ),
+        ),
+        // Bottom gradient — lets title/back-button stay readable
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withValues(alpha: 0.55),
+                  Colors.black.withValues(alpha: 0.9),
+                ],
+                stops: const [0.4, 0.72, 1.0],
+              ),
+            ),
+          ),
+        ),
+        // Title overlay at bottom of the header
+        Positioned(
+          left: 16,
+          right: 16,
+          bottom: 16,
+          child: _HeaderTitleOverlay(movie: movie),
+        ),
+      ],
+    );
+  }
+}
+
+class _HeaderTitleOverlay extends StatelessWidget {
+  const _HeaderTitleOverlay({required this.movie});
+
+  final Movie movie;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          movie.title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 26,
+            fontWeight: FontWeight.w800,
+            height: 1.15,
+            shadows: [
+              Shadow(blurRadius: 8, color: Colors.black54),
+            ],
+          ),
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
+            const SizedBox(width: 4),
+            Text(
+              movie.voteAverage.toStringAsFixed(1),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            if (movie.releaseDate.length >= 4) ...[
+              const SizedBox(width: 12),
+              const _Dot(),
+              const SizedBox(width: 12),
+              Text(
+                movie.releaseDate.substring(0, 4),
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _Dot extends StatelessWidget {
+  const _Dot();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Icon(Icons.circle, size: 4, color: Colors.white54);
+  }
+}
+
+// ─── Body content
+
+class _DetailBody extends StatelessWidget {
+  const _DetailBody({required this.detail});
+
+  final MovieDetail detail;
+
+  @override
+  Widget build(BuildContext context) {
+    final movie = detail.movie;
+    final tt = Theme.of(context).textTheme;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Poster + title row ──
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // Hero poster
-              Hero(
-                tag: 'movie-poster-$movieId',
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: CachedNetworkImage(
-                    imageUrl: movie.posterPath.isNotEmpty
-                        ? '${AppConfig.tmdbImageBaseUrl}${movie.posterPath}'
-                        : '',
-                    width: posterWidth,
-                    height: posterHeight,
-                    fit: BoxFit.cover,
-                    placeholder: (_, _) => Container(
-                      width: posterWidth,
-                      height: posterHeight,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest,
-                    ),
-                    errorWidget: (_, _, _) => Container(
-                      width: posterWidth,
-                      height: posterHeight,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest,
-                      child: const Icon(Icons.movie_outlined),
-                    ),
-                  ),
-                ),
+          // Tagline
+          if (detail.tagline.isNotEmpty) ...[
+            Text(
+              '"${detail.tagline}"',
+              style: tt.bodyMedium?.copyWith(
+                fontStyle: FontStyle.italic,
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.6),
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      movie.title,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            height: 1.2,
-                          ),
-                    ),
-                    if (detail.tagline.isNotEmpty) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        '"${detail.tagline}"',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontStyle: FontStyle.italic,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.6),
-                            ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                    const SizedBox(height: 10),
-                    _QuickMeta(movie: movie, runtime: detail.runtime),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 20),
+          ],
 
-          const SizedBox(height: 20),
-
-          // ── Stats row ──
+          // Stats row
           _StatsRow(detail: detail),
 
-          // ── Genre chips ──
+          // Genre chips
           if (detail.genreNames.isNotEmpty) ...[
             const SizedBox(height: 16),
             _GenreChips(genres: detail.genreNames),
           ],
 
-          // ── Overview ──
+          // Storyline
           if (movie.overview.isNotEmpty) ...[
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             Text(
               'Storyline',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w800),
+              style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 8),
             _ExpandableOverview(text: movie.overview),
           ],
 
-          // ── Cast ──
+          // Cast
           if (detail.cast.isNotEmpty) ...[
             const SizedBox(height: 24),
             Row(
@@ -324,9 +353,7 @@ class _DetailContent extends StatelessWidget {
               children: [
                 Text(
                   'Cast & Crew',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
+                  style: tt.titleMedium
                       ?.copyWith(fontWeight: FontWeight.w800),
                 ),
                 TextButton(
@@ -353,13 +380,11 @@ class _StatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final runtime = detail.runtime;
-    final runtimeStr =
-        runtime > 0 ? '${runtime ~/ 60}h ${runtime % 60}m' : '—';
+    final rt = detail.runtime;
+    final runtimeStr = rt > 0 ? '${rt ~/ 60}h ${rt % 60}m' : '—';
     final year = detail.movie.releaseDate.length >= 4
         ? detail.movie.releaseDate.substring(0, 4)
         : '—';
-    final score = detail.movie.voteAverage;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -370,18 +395,18 @@ class _StatsRow extends StatelessWidget {
       child: Row(
         children: [
           _StatCell(
-            value: score.toStringAsFixed(1),
+            value: detail.movie.voteAverage.toStringAsFixed(1),
             label: 'IMDB Score',
             icon: Icons.star_rounded,
             iconColor: Colors.amber,
           ),
-          _StatDivider(),
+          _Divider(),
           _StatCell(
             value: runtimeStr,
             label: 'Runtime',
             icon: Icons.access_time_rounded,
           ),
-          _StatDivider(),
+          _Divider(),
           _StatCell(
             value: year,
             label: 'Released',
@@ -416,9 +441,10 @@ class _StatCell extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             value,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall
+                ?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 2),
           Text(
@@ -433,7 +459,7 @@ class _StatCell extends StatelessWidget {
   }
 }
 
-class _StatDivider extends StatelessWidget {
+class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -486,11 +512,9 @@ class _ExpandableOverviewState extends State<_ExpandableOverview> {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: Theme.of(context)
-              .colorScheme
-              .onSurface
-              .withValues(alpha: 0.8),
+    final cs = Theme.of(context).colorScheme;
+    final bodyStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: cs.onSurface.withValues(alpha: 0.8),
           height: 1.6,
         );
 
@@ -498,96 +522,32 @@ class _ExpandableOverviewState extends State<_ExpandableOverview> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AnimatedCrossFade(
-          firstChild: HtmlWidget(
-            widget.text,
-            textStyle: textStyle,
-          ),
-          secondChild: HtmlWidget(
-            widget.text,
-            textStyle: textStyle,
-          ),
+          duration: const Duration(milliseconds: 250),
           crossFadeState: _expanded
               ? CrossFadeState.showFirst
               : CrossFadeState.showSecond,
-          duration: const Duration(milliseconds: 250),
+          firstChild: HtmlWidget(widget.text, textStyle: bodyStyle),
+          secondChild: Text(
+            widget.text,
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
+            style: bodyStyle,
+          ),
         ),
-        if (!_expanded)
-          GestureDetector(
-            onTap: () => setState(() => _expanded = true),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                'Read more →',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          )
-        else
-          GestureDetector(
-            onTap: () => setState(() => _expanded = false),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                'Show less',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
+        GestureDetector(
+          onTap: () => setState(() => _expanded = !_expanded),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              _expanded ? 'Show less' : 'Read more →',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
               ),
             ),
           ),
-      ],
-    );
-  }
-}
-
-// ─── Quick meta (below title)
-
-class _QuickMeta extends StatelessWidget {
-  const _QuickMeta({required this.movie, required this.runtime});
-
-  final Movie movie;
-  final int runtime;
-
-  @override
-  Widget build(BuildContext context) {
-    final year = movie.releaseDate.length >= 4
-        ? movie.releaseDate.substring(0, 4)
-        : '';
-    final runtimeStr =
-        runtime > 0 ? '${runtime ~/ 60}h ${runtime % 60}m' : '';
-    final color = Theme.of(context)
-        .colorScheme
-        .onSurface
-        .withValues(alpha: 0.6);
-
-    return Wrap(
-      spacing: 8,
-      runSpacing: 4,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
-            const SizedBox(width: 3),
-            Text(
-              movie.voteAverage.toStringAsFixed(1),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(fontWeight: FontWeight.w600),
-            ),
-          ],
         ),
-        if (year.isNotEmpty)
-          Text(year, style: TextStyle(fontSize: 13, color: color)),
-        if (runtimeStr.isNotEmpty)
-          Text(runtimeStr, style: TextStyle(fontSize: 13, color: color)),
       ],
     );
   }
@@ -608,7 +568,7 @@ class _CastRow extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: cast.length,
         separatorBuilder: (_, _) => const SizedBox(width: 12),
-        itemBuilder: (_, index) => CastCardWidget(member: cast[index]),
+        itemBuilder: (_, i) => CastCardWidget(member: cast[i]),
       ),
     );
   }
