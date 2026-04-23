@@ -8,6 +8,7 @@ import 'package:the_movie_db/features/movies/data/models/movie_model.dart';
 abstract interface class MovieRemoteDataSource {
   Future<List<GenreModel>> getGenres();
   Future<List<MovieModel>> getMoviesByGenre(int genreId, {int page = 1});
+  Future<List<MovieModel>> getPopularMovies();
   Future<MovieDetailModel> getMovieDetail(int movieId);
   Future<List<CastMemberModel>> getMovieCredits(int movieId);
 }
@@ -42,6 +43,17 @@ class MovieRemoteDataSourceImpl implements MovieRemoteDataSource {
     final results = response.data!['results'] as List<dynamic>;
     return results
         .map((e) => MovieModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
+  Future<List<MovieModel>> getPopularMovies() async {
+    final response =
+        await _dio.get<Map<String, dynamic>>('/movie/popular');
+    final results = response.data!['results'] as List<dynamic>;
+    return results
+        .map((e) => MovieModel.fromJson(e as Map<String, dynamic>))
+        .take(10)
         .toList();
   }
 

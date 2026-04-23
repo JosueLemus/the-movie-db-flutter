@@ -9,6 +9,7 @@ class MovieDetail extends Equatable {
     required this.runtime,
     required this.backdropPaths,
     required this.cast,
+    required this.genreNames,
   });
 
   final Movie movie;
@@ -16,7 +17,9 @@ class MovieDetail extends Equatable {
   final int runtime;
   final List<String> backdropPaths;
   final List<CastMember> cast;
+  final List<String> genreNames;
 
   @override
-  List<Object?> get props => [movie, tagline, runtime, backdropPaths, cast];
+  List<Object?> get props =>
+      [movie, tagline, runtime, backdropPaths, cast, genreNames];
 }

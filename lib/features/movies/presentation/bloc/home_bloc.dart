@@ -2,6 +2,7 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:the_movie_db/features/movies/domain/usecases/get_genres.dart';
 import 'package:the_movie_db/features/movies/domain/usecases/get_movies_by_genre.dart';
+import 'package:the_movie_db/features/movies/domain/usecases/get_popular_movies.dart';
 import 'package:the_movie_db/features/movies/presentation/bloc/home_event.dart';
 import 'package:the_movie_db/features/movies/presentation/bloc/home_state.dart';
 
@@ -10,8 +11,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc({
     required GetGenres getGenres,
     required GetMoviesByGenre getMoviesByGenre,
+    required GetPopularMovies getPopularMovies,
   })  : _getGenres = getGenres,
         _getMoviesByGenre = getMoviesByGenre,
+        _getPopularMovies = getPopularMovies,
         super(const HomeState()) {
     on<HomeStarted>(_onStarted, transformer: droppable());
     on<HomeMoviesRequested>(_onMoviesRequested, transformer: concurrent());
@@ -19,6 +22,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   final GetGenres _getGenres;
   final GetMoviesByGenre _getMoviesByGenre;
+  final GetPopularMovies _getPopularMovies;
 
   Future<void> _onStarted(
     HomeStarted event,
@@ -27,11 +31,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(state.copyWith(status: HomeStatus.loading));
 
     try {
-      final genres = await _getGenres();
+      // Kick off both futures simultaneously, await each result
+      final genresFuture = _getGenres();
+      final popularFuture = _getPopularMovies();
+      final genres = await genresFuture;
+      final popular = await popularFuture;
+
       emit(
         state.copyWith(
           status: HomeStatus.loaded,
           genres: genres,
+          popularMovies: popular,
           genreMoviesStatus: {
             for (final g in genres) g.id: GenreMoviesStatus.loading,
           },

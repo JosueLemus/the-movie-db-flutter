@@ -17,6 +17,7 @@ import 'package:the_movie_db/features/movies/domain/usecases/add_recommendation.
 import 'package:the_movie_db/features/movies/domain/usecases/get_genres.dart';
 import 'package:the_movie_db/features/movies/domain/usecases/get_movie_detail.dart';
 import 'package:the_movie_db/features/movies/domain/usecases/get_movies_by_genre.dart';
+import 'package:the_movie_db/features/movies/domain/usecases/get_popular_movies.dart';
 import 'package:the_movie_db/features/movies/domain/usecases/get_recommendations.dart';
 import 'package:the_movie_db/features/movies/domain/usecases/is_favorite.dart';
 import 'package:the_movie_db/features/movies/domain/usecases/toggle_favorite.dart';
@@ -67,6 +68,9 @@ Future<void> _initMovies() async {
       ),
     )
     ..registerFactory<GetGenres>(() => GetGenres(sl<MovieRepository>()))
+    ..registerFactory<GetPopularMovies>(
+      () => GetPopularMovies(sl<MovieRepository>()),
+    )
     ..registerFactory<GetMoviesByGenre>(
       () => GetMoviesByGenre(sl<MovieRepository>()),
     )

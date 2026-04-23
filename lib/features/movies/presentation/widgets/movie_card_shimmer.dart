@@ -7,9 +7,10 @@ class MovieCardShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Shimmer.fromColors(
-      baseColor: Colors.grey.shade300,
-      highlightColor: Colors.grey.shade100,
+      baseColor: isDark ? const Color(0xFF1E2035) : Colors.grey.shade300,
+      highlightColor: isDark ? const Color(0xFF2A2B45) : Colors.grey.shade100,
       child: SizedBox(
         width: MovieCardWidget.cardWidth,
         child: Column(
@@ -20,13 +21,27 @@ class MovieCardShimmer extends StatelessWidget {
               height: MovieCardWidget.cardHeight,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
             const SizedBox(height: 6),
-            Container(width: 100, height: 10, color: Colors.white),
+            Container(
+              width: 100,
+              height: 10,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
             const SizedBox(height: 4),
-            Container(width: 60, height: 10, color: Colors.white),
+            Container(
+              width: 70,
+              height: 10,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
           ],
         ),
       ),

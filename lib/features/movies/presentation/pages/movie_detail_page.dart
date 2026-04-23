@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:the_movie_db/core/di/injection_container.dart';
+import 'package:the_movie_db/core/env/app_flavor.dart';
 import 'package:the_movie_db/features/movies/domain/entities/cast_member.dart';
 import 'package:the_movie_db/features/movies/domain/entities/movie.dart';
 import 'package:the_movie_db/features/movies/domain/entities/movie_detail.dart';
@@ -58,6 +60,8 @@ class _DetailView extends StatelessWidget {
   }
 }
 
+// ─── States
+
 class _LoadingView extends StatelessWidget {
   const _LoadingView();
 
@@ -90,19 +94,97 @@ class _ErrorView extends StatelessWidget {
   }
 }
 
+// ─── Loaded
+
 class _LoadedView extends StatelessWidget {
   const _LoadedView({required this.detail, required this.isFavorite});
 
   final MovieDetail detail;
   final bool isFavorite;
 
-  static const double _carouselHeight = 280;
+  static const double _carouselHeight = 320;
+  static const double _posterWidth = 100;
+  static const double _posterHeight = 150;
 
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<DetailCubit>();
+    final movie = detail.movie;
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: CustomScrollView(
+        slivers: [
+          // ── Collapsing backdrop ──
+          SliverAppBar(
+            expandedHeight: _carouselHeight,
+            pinned: true,
+            stretch: true,
+            backgroundColor: cs.surface,
+            foregroundColor: Colors.white,
+            iconTheme: const IconThemeData(color: Colors.white),
+            actions: [
+              IconButton(
+                icon: Icon(
+                  isFavorite ? Icons.favorite_rounded : Icons.favorite_border,
+                  color: Colors.white,
+                ),
+                onPressed: cubit.toggleFavorite,
+              ),
+              IconButton(
+                icon: const Icon(Icons.share_outlined, color: Colors.white),
+                onPressed: () {},
+              ),
+              const SizedBox(width: 4),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              stretchModes: const [
+                StretchMode.zoomBackground,
+                StretchMode.blurBackground,
+              ],
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ImageCarouselWidget(paths: detail.backdropPaths),
+                  // Bottom gradient so title area is readable
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withValues(alpha: 0.7),
+                          ],
+                          stops: const [0.5, 1.0],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // ── Content ──
+          SliverToBoxAdapter(
+            child: _DetailContent(
+              detail: detail,
+              posterWidth: _posterWidth,
+              posterHeight: _posterHeight,
+              movieId: movie.id,
+              movieTitle: movie.title,
+              movie: movie,
+            ),
+          ),
+
+          const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
+        ],
+      ),
+
+      // ── Recommend FAB ──
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => unawaited(
           showRecommendModal(context, movie: detail.movie),
@@ -110,146 +192,408 @@ class _LoadedView extends StatelessWidget {
         icon: const Icon(Icons.rate_review_outlined),
         label: const Text('Recommend'),
       ),
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: _carouselHeight,
-            pinned: true,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Colors.white,
-            actions: [
-              IconButton(
-                icon: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: Colors.white,
+    );
+  }
+}
+
+// ─── Content body
+
+class _DetailContent extends StatelessWidget {
+  const _DetailContent({
+    required this.detail,
+    required this.posterWidth,
+    required this.posterHeight,
+    required this.movieId,
+    required this.movieTitle,
+    required this.movie,
+  });
+
+  final MovieDetail detail;
+  final double posterWidth;
+  final double posterHeight;
+  final int movieId;
+  final String movieTitle;
+  final Movie movie;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Poster + title row ──
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Hero poster
+              Hero(
+                tag: 'movie-poster-$movieId',
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: CachedNetworkImage(
+                    imageUrl: movie.posterPath.isNotEmpty
+                        ? '${AppConfig.tmdbImageBaseUrl}${movie.posterPath}'
+                        : '',
+                    width: posterWidth,
+                    height: posterHeight,
+                    fit: BoxFit.cover,
+                    placeholder: (_, _) => Container(
+                      width: posterWidth,
+                      height: posterHeight,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest,
+                    ),
+                    errorWidget: (_, _, _) => Container(
+                      width: posterWidth,
+                      height: posterHeight,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest,
+                      child: const Icon(Icons.movie_outlined),
+                    ),
+                  ),
                 ),
-                onPressed: cubit.toggleFavorite,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      movie.title,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            height: 1.2,
+                          ),
+                    ),
+                    if (detail.tagline.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        '"${detail.tagline}"',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontStyle: FontStyle.italic,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.6),
+                            ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    const SizedBox(height: 10),
+                    _QuickMeta(movie: movie, runtime: detail.runtime),
+                  ],
+                ),
               ),
             ],
-            flexibleSpace: FlexibleSpaceBar(
-              background: ImageCarouselWidget(paths: detail.backdropPaths),
+          ),
+
+          const SizedBox(height: 20),
+
+          // ── Stats row ──
+          _StatsRow(detail: detail),
+
+          // ── Genre chips ──
+          if (detail.genreNames.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _GenreChips(genres: detail.genreNames),
+          ],
+
+          // ── Overview ──
+          if (movie.overview.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            Text(
+              'Storyline',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w800),
             ),
-          ),
-          SliverToBoxAdapter(
-            child: _DetailContent(detail: detail),
-          ),
+            const SizedBox(height: 8),
+            _ExpandableOverview(text: movie.overview),
+          ],
+
+          // ── Cast ──
+          if (detail.cast.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Cast & Crew',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text('See all'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            _CastRow(cast: detail.cast),
+          ],
         ],
       ),
     );
   }
 }
 
-class _DetailContent extends StatelessWidget {
-  const _DetailContent({required this.detail});
+// ─── Stats row
+
+class _StatsRow extends StatelessWidget {
+  const _StatsRow({required this.detail});
 
   final MovieDetail detail;
 
   @override
   Widget build(BuildContext context) {
-    final movie = detail.movie;
-    final textTheme = Theme.of(context).textTheme;
+    final runtime = detail.runtime;
+    final runtimeStr =
+        runtime > 0 ? '${runtime ~/ 60}h ${runtime % 60}m' : '—';
+    final year = detail.movie.releaseDate.length >= 4
+        ? detail.movie.releaseDate.substring(0, 4)
+        : '—';
+    final score = detail.movie.voteAverage;
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
         children: [
-          Text(
-            movie.title,
-            style: textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+          _StatCell(
+            value: score.toStringAsFixed(1),
+            label: 'IMDB Score',
+            icon: Icons.star_rounded,
+            iconColor: Colors.amber,
           ),
-          const SizedBox(height: 8),
-          _MetaRow(movie: movie, runtime: detail.runtime),
-          if (detail.tagline.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Text(
-              '"${detail.tagline}"',
-              style: textTheme.bodyMedium?.copyWith(
-                fontStyle: FontStyle.italic,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
-          if (movie.overview.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Text(
-              'Overview',
-              style: textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            HtmlWidget(movie.overview),
-          ],
-          if (detail.cast.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            Text(
-              'Cast',
-              style: textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            _CastRow(cast: detail.cast),
-          ],
-          const SizedBox(height: 32),
+          _StatDivider(),
+          _StatCell(
+            value: runtimeStr,
+            label: 'Runtime',
+            icon: Icons.access_time_rounded,
+          ),
+          _StatDivider(),
+          _StatCell(
+            value: year,
+            label: 'Released',
+            icon: Icons.calendar_today_rounded,
+          ),
         ],
       ),
     );
   }
 }
 
-class _MetaRow extends StatelessWidget {
-  const _MetaRow({required this.movie, required this.runtime});
+class _StatCell extends StatelessWidget {
+  const _StatCell({
+    required this.value,
+    required this.label,
+    required this.icon,
+    this.iconColor,
+  });
+
+  final String value;
+  final String label;
+  final IconData icon;
+  final Color? iconColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Expanded(
+      child: Column(
+        children: [
+          Icon(icon, size: 20, color: iconColor ?? cs.primary),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.5),
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatDivider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      height: 40,
+      color: Theme.of(context).dividerColor,
+    );
+  }
+}
+
+// ─── Genre chips
+
+class _GenreChips extends StatelessWidget {
+  const _GenreChips({required this.genres});
+
+  final List<String> genres;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 6,
+      children: genres
+          .map(
+            (g) => Chip(
+              label: Text(g),
+              labelStyle: Theme.of(context).textTheme.labelMedium,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              visualDensity: VisualDensity.compact,
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+// ─── Expandable overview
+
+class _ExpandableOverview extends StatefulWidget {
+  const _ExpandableOverview({required this.text});
+
+  final String text;
+
+  @override
+  State<_ExpandableOverview> createState() => _ExpandableOverviewState();
+}
+
+class _ExpandableOverviewState extends State<_ExpandableOverview> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Theme.of(context)
+              .colorScheme
+              .onSurface
+              .withValues(alpha: 0.8),
+          height: 1.6,
+        );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedCrossFade(
+          firstChild: HtmlWidget(
+            widget.text,
+            textStyle: textStyle,
+          ),
+          secondChild: HtmlWidget(
+            widget.text,
+            textStyle: textStyle,
+          ),
+          crossFadeState: _expanded
+              ? CrossFadeState.showFirst
+              : CrossFadeState.showSecond,
+          duration: const Duration(milliseconds: 250),
+        ),
+        if (!_expanded)
+          GestureDetector(
+            onTap: () => setState(() => _expanded = true),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                'Read more →',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          )
+        else
+          GestureDetector(
+            onTap: () => setState(() => _expanded = false),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                'Show less',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ─── Quick meta (below title)
+
+class _QuickMeta extends StatelessWidget {
+  const _QuickMeta({required this.movie, required this.runtime});
 
   final Movie movie;
   final int runtime;
 
   @override
   Widget build(BuildContext context) {
-    final labelStyle = Theme.of(context).textTheme.bodySmall;
+    final year = movie.releaseDate.length >= 4
+        ? movie.releaseDate.substring(0, 4)
+        : '';
     final runtimeStr =
         runtime > 0 ? '${runtime ~/ 60}h ${runtime % 60}m' : '';
+    final color = Theme.of(context)
+        .colorScheme
+        .onSurface
+        .withValues(alpha: 0.6);
 
     return Wrap(
-      spacing: 16,
+      spacing: 8,
       runSpacing: 4,
       children: [
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.star, size: 14, color: Colors.amber),
-            const SizedBox(width: 4),
+            const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
+            const SizedBox(width: 3),
             Text(
               movie.voteAverage.toStringAsFixed(1),
-              style: labelStyle,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),
+        if (year.isNotEmpty)
+          Text(year, style: TextStyle(fontSize: 13, color: color)),
         if (runtimeStr.isNotEmpty)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.access_time, size: 14, color: Colors.grey),
-              const SizedBox(width: 4),
-              Text(runtimeStr, style: labelStyle),
-            ],
-          ),
-        if (movie.releaseDate.isNotEmpty)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
-              const SizedBox(width: 4),
-              Text(movie.releaseDate, style: labelStyle),
-            ],
-          ),
+          Text(runtimeStr, style: TextStyle(fontSize: 13, color: color)),
       ],
     );
   }
 }
+
+// ─── Cast row
 
 class _CastRow extends StatelessWidget {
   const _CastRow({required this.cast});

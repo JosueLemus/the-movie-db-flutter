@@ -7,6 +7,7 @@ import 'package:the_movie_db/features/movies/domain/entities/movie_detail.dart';
 abstract interface class MovieRepository {
   Future<List<Genre>> getGenres();
   Future<List<Movie>> getMoviesByGenre(int genreId, {int page = 1});
+  Future<List<Movie>> getPopularMovies();
   Future<MovieDetail> getMovieDetail(int movieId);
   Future<List<CastMember>> getMovieCredits(int movieId);
   Future<void> toggleFavorite(Movie movie);

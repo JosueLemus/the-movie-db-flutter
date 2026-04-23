@@ -9,6 +9,7 @@ class MovieDetailModel extends MovieDetail {
     required super.runtime,
     required super.backdropPaths,
     required super.cast,
+    required super.genreNames,
   });
 
   factory MovieDetailModel.fromJson(
@@ -33,6 +34,12 @@ class MovieDetailModel extends MovieDetail {
         .map((e) => CastMemberModel.fromJson(e as Map<String, dynamic>))
         .toList();
 
+    final genres = detailJson['genres'] as List<dynamic>? ?? [];
+    final genreNames = genres
+        .map((g) => (g as Map<String, dynamic>)['name'] as String? ?? '')
+        .where((n) => n.isNotEmpty)
+        .toList();
+
     return MovieDetailModel(
       movie: movie,
       tagline: detailJson['tagline'] as String? ?? '',
@@ -40,6 +47,7 @@ class MovieDetailModel extends MovieDetail {
       backdropPaths:
           backdropPaths.isEmpty ? [movie.backdropPath] : backdropPaths,
       cast: cast,
+      genreNames: genreNames,
     );
   }
 }
