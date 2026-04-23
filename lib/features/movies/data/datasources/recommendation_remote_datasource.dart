@@ -14,17 +14,16 @@ class RecommendationRemoteDataSourceImpl
 
   // Subcollection: recommendations/{movieId}/entries/{docId}
   // No composite index needed — single-field createdAt index is auto-created.
-  CollectionReference<Map<String, dynamic>> _entries(int movieId) =>
-      _firestore
-          .collection('recommendations')
-          .doc('$movieId')
-          .collection('entries');
+  CollectionReference<Map<String, dynamic>> _entries(int movieId) => _firestore
+      .collection('recommendations')
+      .doc('$movieId')
+      .collection('entries');
 
   @override
   Future<List<RecommendationModel>> getRecommendations(int movieId) async {
-    final snapshot = await _entries(movieId)
-        .orderBy('createdAt', descending: true)
-        .get();
+    final snapshot = await _entries(
+      movieId,
+    ).orderBy('createdAt', descending: true).get();
 
     return snapshot.docs
         .map((doc) => RecommendationModel.fromDoc(doc, movieId))

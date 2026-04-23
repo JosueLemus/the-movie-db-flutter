@@ -32,23 +32,22 @@ final class HomeState extends Equatable {
     Map<int, List<Movie>>? moviesByGenre,
     Map<int, GenreMoviesStatus>? genreMoviesStatus,
     String? error,
-  }) =>
-      HomeState(
-        status: status ?? this.status,
-        genres: genres ?? this.genres,
-        popularMovies: popularMovies ?? this.popularMovies,
-        moviesByGenre: moviesByGenre ?? this.moviesByGenre,
-        genreMoviesStatus: genreMoviesStatus ?? this.genreMoviesStatus,
-        error: error ?? this.error,
-      );
+  }) => HomeState(
+    status: status ?? this.status,
+    genres: genres ?? this.genres,
+    popularMovies: popularMovies ?? this.popularMovies,
+    moviesByGenre: moviesByGenre ?? this.moviesByGenre,
+    genreMoviesStatus: genreMoviesStatus ?? this.genreMoviesStatus,
+    error: error ?? this.error,
+  );
 
   @override
   List<Object?> get props => [
-        status,
-        genres,
-        popularMovies,
-        moviesByGenre,
-        genreMoviesStatus,
-        error,
-      ];
+    status,
+    genres,
+    popularMovies,
+    moviesByGenre,
+    genreMoviesStatus,
+    error,
+  ];
 }

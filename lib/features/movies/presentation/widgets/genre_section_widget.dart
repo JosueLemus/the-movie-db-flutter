@@ -31,10 +31,9 @@ class GenreSectionWidget extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
           child: Text(
             genre.name,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
         SizedBox(
@@ -43,9 +42,9 @@ class GenreSectionWidget extends StatelessWidget {
             GenreMoviesStatus.loading => _ShimmerRow(),
             GenreMoviesStatus.error => const _ErrorRow(),
             GenreMoviesStatus.loaded => _MovieRow(
-                movies: movies,
-                onMovieTap: onMovieTap,
-              ),
+              movies: movies,
+              onMovieTap: onMovieTap,
+            ),
           },
         ),
       ],

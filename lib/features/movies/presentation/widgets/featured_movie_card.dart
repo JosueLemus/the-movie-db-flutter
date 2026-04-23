@@ -18,8 +18,8 @@ class FeaturedMovieCard extends StatelessWidget {
     final imageUrl = movie.backdropPath.isNotEmpty
         ? '${AppConfig.tmdbBackdropBaseUrl}${movie.backdropPath}'
         : movie.posterPath.isNotEmpty
-            ? '${AppConfig.tmdbImageBaseUrl}${movie.posterPath}'
-            : '';
+        ? '${AppConfig.tmdbImageBaseUrl}${movie.posterPath}'
+        : '';
 
     return GestureDetector(
       onTap: onTap,

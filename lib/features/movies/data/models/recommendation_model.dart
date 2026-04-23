@@ -24,9 +24,9 @@ class RecommendationModel extends Recommendation {
   }
 
   Map<String, dynamic> toJson() => {
-        'movieTitle': movieTitle,
-        'comment': comment,
-        'tags': tags,
-        'createdAt': Timestamp.fromDate(createdAt),
-      };
+    'movieTitle': movieTitle,
+    'comment': comment,
+    'tags': tags,
+    'createdAt': Timestamp.fromDate(createdAt),
+  };
 }

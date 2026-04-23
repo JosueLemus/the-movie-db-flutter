@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider_plus/carousel_slider_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
@@ -51,9 +52,9 @@ class _DetailView extends StatelessWidget {
         DetailStatus.loading => const _LoadingScaffold(),
         DetailStatus.error => _ErrorScaffold(message: state.error),
         DetailStatus.loaded => _LoadedScaffold(
-            detail: state.movieDetail!,
-            isFavorite: state.isFavorite,
-          ),
+          detail: state.movieDetail!,
+          isFavorite: state.isFavorite,
+        ),
       },
     );
   }
@@ -126,9 +127,7 @@ class _LoadedScaffold extends StatelessWidget {
             actions: [
               IconButton(
                 icon: Icon(
-                  isFavorite
-                      ? Icons.favorite_rounded
-                      : Icons.favorite_border,
+                  isFavorite ? Icons.favorite_rounded : Icons.favorite_border,
                   color: Colors.white,
                 ),
                 onPressed: cubit.toggleFavorite,
@@ -143,7 +142,10 @@ class _LoadedScaffold extends StatelessWidget {
               const SizedBox(width: 4),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              background: _PosterHeroHeader(movie: movie),
+              background: _PosterHeroHeader(
+                movie: movie,
+                backdropPaths: detail.backdropPaths,
+              ),
             ),
           ),
           SliverToBoxAdapter(
@@ -165,42 +167,74 @@ class _LoadedScaffold extends StatelessWidget {
 
 // ─── Hero poster header
 
-class _PosterHeroHeader extends StatelessWidget {
-  const _PosterHeroHeader({required this.movie});
+class _PosterHeroHeader extends StatefulWidget {
+  const _PosterHeroHeader({
+    required this.movie,
+    required this.backdropPaths,
+  });
 
   final Movie movie;
+  final List<String> backdropPaths;
+
+  @override
+  State<_PosterHeroHeader> createState() => _PosterHeroHeaderState();
+}
+
+class _PosterHeroHeaderState extends State<_PosterHeroHeader> {
+  int _current = 0;
+
+  List<String> get _imageUrls {
+    final posterFallback = widget.movie.posterPath.isNotEmpty
+        ? '${AppConfig.tmdbImageBaseUrl}${widget.movie.posterPath}'
+        : null;
+
+    final urls = widget.backdropPaths
+        .where((p) => p.isNotEmpty)
+        .map((p) => '${AppConfig.tmdbBackdropBaseUrl}$p')
+        .toList();
+
+    if (urls.isEmpty && posterFallback != null) return [posterFallback];
+    return urls;
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Prefer backdrop for the header (wider, better composition).
-    // Fall back to poster if no backdrop available.
-    final backdropUrl = movie.backdropPath.isNotEmpty
-        ? '${AppConfig.tmdbBackdropBaseUrl}${movie.backdropPath}'
-        : null;
-    final posterUrl = movie.posterPath.isNotEmpty
-        ? '${AppConfig.tmdbImageBaseUrl}${movie.posterPath}'
-        : null;
-    final imageUrl = backdropUrl ?? posterUrl ?? '';
+    final urls = _imageUrls;
+    final cs = Theme.of(context).colorScheme;
 
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Poster with Hero transition (matching tag from MovieCardWidget)
-        Hero(
-          tag: 'movie-poster-${movie.id}',
-          child: CachedNetworkImage(
-            imageUrl: imageUrl,
-            fit: BoxFit.cover,
-            placeholder: (_, _) => ColoredBox(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            ),
-            errorWidget: (_, _, _) => ColoredBox(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              child: const Icon(Icons.movie_outlined, size: 48),
-            ),
+        CarouselSlider(
+          options: CarouselOptions(
+            height: double.infinity,
+            viewportFraction: 1,
+            autoPlay: urls.length > 1,
+            autoPlayInterval: const Duration(seconds: 5),
+            autoPlayCurve: Curves.easeInOutCubic,
+            onPageChanged: (i, _) => setState(() => _current = i),
           ),
+          items: List.generate(urls.length, (i) {
+            final child = CachedNetworkImage(
+              imageUrl: urls[i],
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+              placeholder: (_, _) => ColoredBox(
+                color: cs.surfaceContainerHighest,
+              ),
+              errorWidget: (_, _, _) => ColoredBox(
+                color: cs.surfaceContainerHighest,
+                child: const Icon(Icons.movie_outlined, size: 48),
+              ),
+            );
+            // Wrap only the first slide with Hero so the transition works
+            return i == 0
+                ? Hero(tag: 'movie-poster-${widget.movie.id}', child: child)
+                : child;
+          }),
         ),
-        // Bottom gradient — lets title/back-button stay readable
+        // Bottom gradient
         Positioned.fill(
           child: DecoratedBox(
             decoration: BoxDecoration(
@@ -217,12 +251,39 @@ class _PosterHeroHeader extends StatelessWidget {
             ),
           ),
         ),
-        // Title overlay at bottom of the header
+        // Title overlay + dot indicators
         Positioned(
           left: 16,
           right: 16,
           bottom: 16,
-          child: _HeaderTitleOverlay(movie: movie),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _HeaderTitleOverlay(movie: widget.movie),
+              if (urls.length > 1) ...[
+                const SizedBox(height: 10),
+                Row(
+                  children: List.generate(
+                    urls.length,
+                    (i) => AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeOut,
+                      margin: const EdgeInsets.only(right: 5),
+                      width: _current == i ? 18 : 5,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: _current == i
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ],
     );
@@ -316,10 +377,9 @@ class _DetailBody extends StatelessWidget {
               '"${detail.tagline}"',
               style: tt.bodyMedium?.copyWith(
                 fontStyle: FontStyle.italic,
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.6),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
             const SizedBox(height: 20),
@@ -353,8 +413,7 @@ class _DetailBody extends StatelessWidget {
               children: [
                 Text(
                   'Cast & Crew',
-                  style: tt.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w800),
+                  style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w800),
                 ),
                 TextButton(
                   onPressed: () {},
@@ -441,17 +500,16 @@ class _StatCell extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             value,
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(fontWeight: FontWeight.w800),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 2),
           Text(
             label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: cs.onSurface.withValues(alpha: 0.5),
-                ),
+              color: cs.onSurface.withValues(alpha: 0.5),
+            ),
           ),
         ],
       ),
@@ -514,9 +572,9 @@ class _ExpandableOverviewState extends State<_ExpandableOverview> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final bodyStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: cs.onSurface.withValues(alpha: 0.8),
-          height: 1.6,
-        );
+      color: cs.onSurface.withValues(alpha: 0.8),
+      height: 1.6,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

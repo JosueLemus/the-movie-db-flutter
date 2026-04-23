@@ -47,9 +47,9 @@ class _SplashView extends StatelessWidget {
               Text(
                 'The Movie DB',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 48),
               BlocBuilder<SplashCubit, SplashState>(

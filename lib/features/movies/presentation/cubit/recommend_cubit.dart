@@ -7,9 +7,9 @@ class RecommendCubit extends Cubit<RecommendState> {
   RecommendCubit({
     required GetRecommendations getRecommendations,
     required AddRecommendation addRecommendation,
-  })  : _getRecommendations = getRecommendations,
-        _addRecommendation = addRecommendation,
-        super(const RecommendState());
+  }) : _getRecommendations = getRecommendations,
+       _addRecommendation = addRecommendation,
+       super(const RecommendState());
 
   final GetRecommendations _getRecommendations;
   final AddRecommendation _addRecommendation;
@@ -24,7 +24,7 @@ class RecommendCubit extends Cubit<RecommendState> {
           recommendations: items,
         ),
       );
-    } on Exception catch (e) {
+    } on Object catch (e) {
       emit(state.copyWith(status: RecommendStatus.error, error: e.toString()));
     }
   }
@@ -51,8 +51,13 @@ class RecommendCubit extends Cubit<RecommendState> {
           recommendations: items,
         ),
       );
-    } on Exception catch (e) {
-      emit(state.copyWith(status: RecommendStatus.error, error: e.toString()));
+    } on Object catch (e) {
+      emit(
+        state.copyWith(
+          status: RecommendStatus.error,
+          error: e.toString(),
+        ),
+      );
     }
   }
 }

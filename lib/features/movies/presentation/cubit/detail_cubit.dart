@@ -10,10 +10,10 @@ class DetailCubit extends Cubit<DetailState> {
     required GetMovieDetail getMovieDetail,
     required IsFavorite isFavorite,
     required ToggleFavorite toggleFavorite,
-  })  : _getMovieDetail = getMovieDetail,
-        _isFavorite = isFavorite,
-        _toggleFavorite = toggleFavorite,
-        super(const DetailState());
+  }) : _getMovieDetail = getMovieDetail,
+       _isFavorite = isFavorite,
+       _toggleFavorite = toggleFavorite,
+       super(const DetailState());
 
   final GetMovieDetail _getMovieDetail;
   final IsFavorite _isFavorite;

@@ -7,15 +7,14 @@ sealed class NetworkException implements Exception {
     return switch (e.type) {
       DioExceptionType.connectionTimeout ||
       DioExceptionType.receiveTimeout ||
-      DioExceptionType.sendTimeout =>
-        const TimeoutException(),
+      DioExceptionType.sendTimeout => const TimeoutException(),
       DioExceptionType.connectionError => const NoConnectionException(),
       _ => switch (e.response?.statusCode) {
-          401 => const UnauthorizedException(),
-          404 => const NotFoundException(),
-          500 => const ServerException(),
-          _ => UnknownException(e.message ?? 'Unknown error'),
-        },
+        401 => const UnauthorizedException(),
+        404 => const NotFoundException(),
+        500 => const ServerException(),
+        _ => UnknownException(e.message ?? 'Unknown error'),
+      },
     };
   }
 

@@ -51,9 +51,9 @@ class _HomeView extends StatelessWidget {
             HomeStatus.initial || HomeStatus.loading => const _LoadingView(),
             HomeStatus.error => _ErrorView(message: state.error),
             HomeStatus.loaded => _LoadedView(
-                state: state,
-                onMovieTap: (movie) => _onMovieTap(context, movie),
-              ),
+              state: state,
+              onMovieTap: (movie) => _onMovieTap(context, movie),
+            ),
           };
         },
       ),
@@ -90,7 +90,8 @@ class _LoadedView extends StatelessWidget {
             itemBuilder: (_, index) {
               final genre = state.genres[index];
               final movies = state.moviesByGenre[genre.id] ?? [];
-              final status = state.genreMoviesStatus[genre.id] ??
+              final status =
+                  state.genreMoviesStatus[genre.id] ??
                   GenreMoviesStatus.loading;
               return GenreSectionWidget(
                 key: ValueKey(genre.id),
@@ -134,8 +135,9 @@ class _HomeAppBar extends StatelessWidget {
                   ? Icons.light_mode_rounded
                   : Icons.dark_mode_rounded,
             ),
-            onPressed: () => themeNotifier.value =
-                mode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark,
+            onPressed: () => themeNotifier.value = mode == ThemeMode.dark
+                ? ThemeMode.light
+                : ThemeMode.dark,
             tooltip: 'Toggle theme',
           ),
         ),
@@ -170,8 +172,8 @@ class _FeaturedSectionState extends State<_FeaturedSection> {
           child: Text(
             'Popular Now',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
         SizedBox(
@@ -213,10 +215,9 @@ class _FeaturedSectionState extends State<_FeaturedSection> {
               decoration: BoxDecoration(
                 color: _current == i
                     ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withValues(alpha: 0.3),
+                    : Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(3),
               ),
             ),

@@ -27,14 +27,15 @@ abstract final class AppTheme {
   }
 
   static ThemeData get dark {
-    final cs = ColorScheme.fromSeed(
-      seedColor: _kPrimary,
-      brightness: Brightness.dark,
-    ).copyWith(
-      surface: _kDarkSurface,
-      surfaceContainerHighest: _kDarkCard,
-      surfaceContainerLow: _kDarkBg,
-    );
+    final cs =
+        ColorScheme.fromSeed(
+          seedColor: _kPrimary,
+          brightness: Brightness.dark,
+        ).copyWith(
+          surface: _kDarkSurface,
+          surfaceContainerHighest: _kDarkCard,
+          surfaceContainerLow: _kDarkBg,
+        );
     return ThemeData(
       useMaterial3: true,
       colorScheme: cs,

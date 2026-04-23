@@ -27,7 +27,11 @@ import 'package:the_movie_db/features/splash/domain/usecases/initialize_app.dart
 
 final GetIt sl = GetIt.instance;
 
-// DIP: all modules register abstractions, not concrete types
+// SOLID – D: Dependency Inversion Principle
+// High-level modules (use-cases, cubits) depend on abstractions such as
+// MovieRepository, not on MovieRepositoryImpl. Concrete types are only
+// referenced here at the composition root, keeping the domain layer
+// completely decoupled from framework and infrastructure details.
 Future<void> initDependencies({required String tmdbApiKey}) async {
   await _initCore(tmdbApiKey: tmdbApiKey);
   _initSplash();

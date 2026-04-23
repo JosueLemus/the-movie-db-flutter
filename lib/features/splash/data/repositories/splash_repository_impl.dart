@@ -8,8 +8,7 @@ class SplashRepositoryImpl implements SplashRepository {
   final RemoteConfigService _remoteConfigService;
 
   @override
-  Future<void> initializeRemoteConfig() =>
-      _remoteConfigService.initialize();
+  Future<void> initializeRemoteConfig() => _remoteConfigService.initialize();
 
   @override
   String get welcomeMessage => _remoteConfigService.welcomeMessage;

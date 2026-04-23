@@ -48,8 +48,7 @@ class MovieRemoteDataSourceImpl implements MovieRemoteDataSource {
 
   @override
   Future<List<MovieModel>> getPopularMovies() async {
-    final response =
-        await _dio.get<Map<String, dynamic>>('/movie/popular');
+    final response = await _dio.get<Map<String, dynamic>>('/movie/popular');
     final results = response.data!['results'] as List<dynamic>;
     return results
         .map((e) => MovieModel.fromJson(e as Map<String, dynamic>))
@@ -75,8 +74,9 @@ class MovieRemoteDataSourceImpl implements MovieRemoteDataSource {
 
   @override
   Future<List<CastMemberModel>> getMovieCredits(int movieId) async {
-    final response =
-        await _dio.get<Map<String, dynamic>>('/movie/$movieId/credits');
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/movie/$movieId/credits',
+    );
     final cast = response.data!['cast'] as List<dynamic>;
     return cast
         .take(15)

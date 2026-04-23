@@ -22,25 +22,25 @@ class Movie extends Equatable {
   final bool isFavorite;
 
   Movie copyWith({bool? isFavorite}) => Movie(
-        id: id,
-        title: title,
-        overview: overview,
-        posterPath: posterPath,
-        backdropPath: backdropPath,
-        voteAverage: voteAverage,
-        releaseDate: releaseDate,
-        isFavorite: isFavorite ?? this.isFavorite,
-      );
+    id: id,
+    title: title,
+    overview: overview,
+    posterPath: posterPath,
+    backdropPath: backdropPath,
+    voteAverage: voteAverage,
+    releaseDate: releaseDate,
+    isFavorite: isFavorite ?? this.isFavorite,
+  );
 
   @override
   List<Object?> get props => [
-        id,
-        title,
-        overview,
-        posterPath,
-        backdropPath,
-        voteAverage,
-        releaseDate,
-        isFavorite,
-      ];
+    id,
+    title,
+    overview,
+    posterPath,
+    backdropPath,
+    voteAverage,
+    releaseDate,
+    isFavorite,
+  ];
 }

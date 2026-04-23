@@ -20,6 +20,12 @@ class MovieDetail extends Equatable {
   final List<String> genreNames;
 
   @override
-  List<Object?> get props =>
-      [movie, tagline, runtime, backdropPaths, cast, genreNames];
+  List<Object?> get props => [
+    movie,
+    tagline,
+    runtime,
+    backdropPaths,
+    cast,
+    genreNames,
+  ];
 }

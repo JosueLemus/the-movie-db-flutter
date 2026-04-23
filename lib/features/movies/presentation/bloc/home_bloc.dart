@@ -12,10 +12,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required GetGenres getGenres,
     required GetMoviesByGenre getMoviesByGenre,
     required GetPopularMovies getPopularMovies,
-  })  : _getGenres = getGenres,
-        _getMoviesByGenre = getMoviesByGenre,
-        _getPopularMovies = getPopularMovies,
-        super(const HomeState()) {
+  }) : _getGenres = getGenres,
+       _getMoviesByGenre = getMoviesByGenre,
+       _getPopularMovies = getPopularMovies,
+       super(const HomeState()) {
     on<HomeStarted>(_onStarted, transformer: droppable());
     on<HomeMoviesRequested>(_onMoviesRequested, transformer: concurrent());
   }
@@ -67,22 +67,22 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       final updatedMovies = Map<int, dynamic>.from(state.moviesByGenre)
         ..[event.genreId] = movies;
 
-      final updatedStatus =
-          Map<int, GenreMoviesStatus>.from(state.genreMoviesStatus)
-            ..[event.genreId] = GenreMoviesStatus.loaded;
+      final updatedStatus = Map<int, GenreMoviesStatus>.from(
+        state.genreMoviesStatus,
+      )..[event.genreId] = GenreMoviesStatus.loaded;
 
       emit(
         state.copyWith(
-          moviesByGenre: Map<int, dynamic>.from(updatedMovies)
-              .cast<int, List<dynamic>>()
-              .map((k, v) => MapEntry(k, List.from(v))),
+          moviesByGenre: Map<int, dynamic>.from(
+            updatedMovies,
+          ).cast<int, List<dynamic>>().map((k, v) => MapEntry(k, List.from(v))),
           genreMoviesStatus: updatedStatus,
         ),
       );
     } on Exception {
-      final updatedStatus =
-          Map<int, GenreMoviesStatus>.from(state.genreMoviesStatus)
-            ..[event.genreId] = GenreMoviesStatus.error;
+      final updatedStatus = Map<int, GenreMoviesStatus>.from(
+        state.genreMoviesStatus,
+      )..[event.genreId] = GenreMoviesStatus.error;
       emit(state.copyWith(genreMoviesStatus: updatedStatus));
     }
   }

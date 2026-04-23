@@ -26,8 +26,8 @@ const List<(String, IconData)> _kTags = [
 Future<void> showRecommendModal(
   BuildContext context, {
   required Movie movie,
-}) {
-  return showModalBottomSheet<void>(
+}) async {
+  final success = await showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
@@ -46,6 +46,25 @@ Future<void> showRecommendModal(
       child: _RecommendModalContent(movie: movie),
     ),
   );
+  if ((success ?? false) && context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.white, size: 20),
+            SizedBox(width: 10),
+            Text('Recommendation sent!'),
+          ],
+        ),
+        backgroundColor: Colors.green[700],
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
 }
 
 class _RecommendModalContent extends StatefulWidget {
@@ -98,11 +117,18 @@ class _RecommendModalContentState extends State<_RecommendModalContent> {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return BlocListener<RecommendCubit, RecommendState>(
-      listenWhen: (_, curr) => curr.status == RecommendStatus.error,
+      listenWhen: (prev, curr) =>
+          curr.status == RecommendStatus.error ||
+          (prev.status == RecommendStatus.submitting &&
+              curr.status == RecommendStatus.submitted),
       listener: (context, state) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(state.error ?? 'Something went wrong')),
-        );
+        if (state.status == RecommendStatus.submitted) {
+          Navigator.of(context).pop(true);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.error ?? 'Something went wrong')),
+          );
+        }
       },
       child: DraggableScrollableSheet(
         initialChildSize: 0.9,
@@ -130,9 +156,9 @@ class _RecommendModalContentState extends State<_RecommendModalContent> {
                   ),
                   const SizedBox(height: 12),
                   _SubmitButton(
-                    onSubmit: () =>
-                        _submit(context.read<RecommendCubit>()),
-                    hasContent: _selectedTags.isNotEmpty ||
+                    onSubmit: () => _submit(context.read<RecommendCubit>()),
+                    hasContent:
+                        _selectedTags.isNotEmpty ||
                         _controller.text.trim().isNotEmpty,
                   ),
                   const Divider(height: 32),
@@ -206,17 +232,16 @@ class _MovieInfoHeader extends StatelessWidget {
               Text(
                 'Recommend',
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
                 movie.title,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -252,10 +277,9 @@ class _MovieInfoHeader extends StatelessWidget {
                   movie.overview,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                 ),
               ],
             ],
@@ -279,10 +303,9 @@ class _TagsSection extends StatelessWidget {
       children: [
         Text(
           'How would you describe it?',
-          style: Theme.of(context)
-              .textTheme
-              .titleSmall
-              ?.copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
         Wrap(
@@ -373,10 +396,9 @@ class _PastRecommendations extends StatelessWidget {
           children: [
             Text(
               'Recommendations (${state.recommendations.length})',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             if (state.recommendations.isEmpty)
@@ -385,10 +407,9 @@ class _PastRecommendations extends StatelessWidget {
                 child: Center(
                   child: Text(
                     'No recommendations yet. Be the first!',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: Colors.grey),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
                   ),
                 ),
               )
@@ -437,10 +458,9 @@ class _RecommendationTile extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             _formatDate(item.createdAt),
-            style: Theme.of(context)
-                .textTheme
-                .labelSmall
-                ?.copyWith(color: Colors.grey),
+            style: Theme.of(
+              context,
+            ).textTheme.labelSmall?.copyWith(color: Colors.grey),
           ),
           const Divider(height: 16),
         ],

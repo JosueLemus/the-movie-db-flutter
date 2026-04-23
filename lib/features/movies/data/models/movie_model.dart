@@ -13,34 +13,34 @@ class MovieModel extends Movie {
   });
 
   factory MovieModel.fromJson(Map<String, dynamic> json) => MovieModel(
-        id: json['id'] as int,
-        title: json['title'] as String? ?? '',
-        overview: json['overview'] as String? ?? '',
-        posterPath: json['poster_path'] as String? ?? '',
-        backdropPath: json['backdrop_path'] as String? ?? '',
-        voteAverage: (json['vote_average'] as num?)?.toDouble() ?? 0,
-        releaseDate: json['release_date'] as String? ?? '',
-      );
+    id: json['id'] as int,
+    title: json['title'] as String? ?? '',
+    overview: json['overview'] as String? ?? '',
+    posterPath: json['poster_path'] as String? ?? '',
+    backdropPath: json['backdrop_path'] as String? ?? '',
+    voteAverage: (json['vote_average'] as num?)?.toDouble() ?? 0,
+    releaseDate: json['release_date'] as String? ?? '',
+  );
 
   factory MovieModel.fromCacheJson(Map<String, dynamic> json) => MovieModel(
-        id: json['id'] as int,
-        title: json['title'] as String,
-        overview: json['overview'] as String,
-        posterPath: json['poster_path'] as String,
-        backdropPath: json['backdrop_path'] as String,
-        voteAverage: (json['vote_average'] as num).toDouble(),
-        releaseDate: json['release_date'] as String,
-        isFavorite: json['is_favorite'] as bool? ?? false,
-      );
+    id: json['id'] as int,
+    title: json['title'] as String,
+    overview: json['overview'] as String,
+    posterPath: json['poster_path'] as String,
+    backdropPath: json['backdrop_path'] as String,
+    voteAverage: (json['vote_average'] as num).toDouble(),
+    releaseDate: json['release_date'] as String,
+    isFavorite: json['is_favorite'] as bool? ?? false,
+  );
 
   Map<String, dynamic> toCacheJson() => {
-        'id': id,
-        'title': title,
-        'overview': overview,
-        'poster_path': posterPath,
-        'backdrop_path': backdropPath,
-        'vote_average': voteAverage,
-        'release_date': releaseDate,
-        'is_favorite': isFavorite,
-      };
+    'id': id,
+    'title': title,
+    'overview': overview,
+    'poster_path': posterPath,
+    'backdrop_path': backdropPath,
+    'vote_average': voteAverage,
+    'release_date': releaseDate,
+    'is_favorite': isFavorite,
+  };
 }

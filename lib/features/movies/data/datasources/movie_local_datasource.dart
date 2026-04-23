@@ -71,6 +71,5 @@ class MovieLocalDataSourceImpl implements MovieLocalDataSource {
   }
 
   @override
-  bool isFavorite(int movieId) =>
-      _favoritesBox.get(movieId.toString()) == true;
+  bool isFavorite(int movieId) => _favoritesBox.get(movieId.toString()) == true;
 }

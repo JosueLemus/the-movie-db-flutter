@@ -15,8 +15,8 @@ class AppConfig {
 
   // OCP: add new flavors without modifying callers
   static String get flavorName => switch (flavor) {
-        AppFlavor.development => 'DEV',
-        AppFlavor.staging => 'STG',
-        AppFlavor.production => 'PROD',
-      };
+    AppFlavor.development => 'DEV',
+    AppFlavor.staging => 'STG',
+    AppFlavor.production => 'PROD',
+  };
 }

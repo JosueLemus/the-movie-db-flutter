@@ -18,6 +18,12 @@ class Recommendation extends Equatable {
   final DateTime createdAt;
 
   @override
-  List<Object?> get props =>
-      [id, movieId, movieTitle, comment, tags, createdAt];
+  List<Object?> get props => [
+    id,
+    movieId,
+    movieTitle,
+    comment,
+    tags,
+    createdAt,
+  ];
 }

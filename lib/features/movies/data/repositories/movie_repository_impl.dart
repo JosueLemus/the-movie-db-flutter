@@ -7,7 +7,12 @@ import 'package:the_movie_db/features/movies/domain/entities/movie.dart';
 import 'package:the_movie_db/features/movies/domain/entities/movie_detail.dart';
 import 'package:the_movie_db/features/movies/domain/repositories/movie_repository.dart';
 
-// OCP: caching/offline strategy can change without touching domain or presentation
+// SOLID – O: Open/Closed Principle
+// MovieRepositoryImpl is open for extension but closed for modification.
+// The caching and offline-fallback strategy lives entirely here in the data
+// layer. Swapping Hive for SQLite, or adding a new remote source, only
+// requires a new implementation of MovieRepository — the domain use-cases
+// and presentation layer never need to change.
 class MovieRepositoryImpl implements MovieRepository {
   const MovieRepositoryImpl(this._remote, this._local);
 
@@ -55,16 +60,17 @@ class MovieRepositoryImpl implements MovieRepository {
       _remote.getMovieCredits(movieId);
 
   @override
-  Future<void> toggleFavorite(Movie movie) =>
-      _local.toggleFavorite(MovieModel.fromJson({
-        'id': movie.id,
-        'title': movie.title,
-        'overview': movie.overview,
-        'poster_path': movie.posterPath,
-        'backdrop_path': movie.backdropPath,
-        'vote_average': movie.voteAverage,
-        'release_date': movie.releaseDate,
-      }));
+  Future<void> toggleFavorite(Movie movie) => _local.toggleFavorite(
+    MovieModel.fromJson({
+      'id': movie.id,
+      'title': movie.title,
+      'overview': movie.overview,
+      'poster_path': movie.posterPath,
+      'backdrop_path': movie.backdropPath,
+      'vote_average': movie.voteAverage,
+      'release_date': movie.releaseDate,
+    }),
+  );
 
   @override
   Future<bool> isFavorite(int movieId) async => _local.isFavorite(movieId);

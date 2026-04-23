@@ -23,10 +23,13 @@ class MovieDetailModel extends MovieDetail {
     final backdropPaths = [
       if ((detailJson['backdrop_path'] as String?) != null)
         detailJson['backdrop_path'] as String,
-      ...backdrops.take(5).map((dynamic e) {
-        final map = e as Map<String, dynamic>;
-        return map['file_path'] as String? ?? '';
-      }).where((p) => p.isNotEmpty),
+      ...backdrops
+          .take(5)
+          .map((dynamic e) {
+            final map = e as Map<String, dynamic>;
+            return map['file_path'] as String? ?? '';
+          })
+          .where((p) => p.isNotEmpty),
     ];
 
     final cast = creditsJson
@@ -44,8 +47,9 @@ class MovieDetailModel extends MovieDetail {
       movie: movie,
       tagline: detailJson['tagline'] as String? ?? '',
       runtime: detailJson['runtime'] as int? ?? 0,
-      backdropPaths:
-          backdropPaths.isEmpty ? [movie.backdropPath] : backdropPaths,
+      backdropPaths: backdropPaths.isEmpty
+          ? [movie.backdropPath]
+          : backdropPaths,
       cast: cast,
       genreNames: genreNames,
     );
