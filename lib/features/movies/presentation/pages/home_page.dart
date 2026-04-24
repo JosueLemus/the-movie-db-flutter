@@ -123,11 +123,6 @@ class _HomeAppBar extends StatelessWidget {
         style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: -0.5),
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.search_rounded),
-          onPressed: () {},
-          tooltip: 'Search',
-        ),
         ValueListenableBuilder<ThemeMode>(
           valueListenable: themeNotifier,
           builder: (_, mode, _) => IconButton(
@@ -139,7 +134,7 @@ class _HomeAppBar extends StatelessWidget {
             onPressed: () => themeNotifier.value = mode == ThemeMode.dark
                 ? ThemeMode.light
                 : ThemeMode.dark,
-            tooltip: 'Toggle theme',
+            tooltip: 'Cambiar tema',
           ),
         ),
         const SizedBox(width: 4),
@@ -171,7 +166,7 @@ class _FeaturedSectionState extends State<_FeaturedSection> {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
           child: Text(
-            'Popular Now',
+            'Populares ahora',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w800,
             ),
@@ -253,7 +248,7 @@ class _ErrorView extends StatelessWidget {
         children: [
           const Icon(Icons.error_outline, size: 48, color: Colors.red),
           const SizedBox(height: 16),
-          Text(message ?? 'Something went wrong'),
+          Text(message ?? 'Algo salió mal'),
         ],
       ),
     );

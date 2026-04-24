@@ -14,14 +14,14 @@ import 'package:the_movie_db/features/movies/presentation/cubit/recommend_cubit.
 import 'package:the_movie_db/features/movies/presentation/cubit/recommend_state.dart';
 
 const List<(String, IconData)> _kTags = [
-  ('Must Watch', Icons.star),
-  ('Great Story', Icons.menu_book_outlined),
-  ('Stunning Visuals', Icons.movie_outlined),
-  ('Amazing Soundtrack', Icons.headphones),
-  ('Action-Packed', Icons.local_fire_department_outlined),
-  ('Emotional', Icons.favorite_border),
-  ('Funny', Icons.sentiment_very_satisfied_outlined),
-  ('Disappointing', Icons.thumb_down_outlined),
+  ('Imperdible', Icons.star),
+  ('Gran historia', Icons.menu_book_outlined),
+  ('Visuales increíbles', Icons.movie_outlined),
+  ('Banda sonora increíble', Icons.headphones),
+  ('Mucha acción', Icons.local_fire_department_outlined),
+  ('Emotiva', Icons.favorite_border),
+  ('Divertida', Icons.sentiment_very_satisfied_outlined),
+  ('Decepcionante', Icons.thumb_down_outlined),
 ];
 
 Future<void> showRecommendModal(
@@ -54,7 +54,7 @@ Future<void> showRecommendModal(
           children: [
             Icon(Icons.check_circle, color: Colors.white, size: 20),
             SizedBox(width: 10),
-            Text('Recommendation sent!'),
+            Text('¡Recomendación enviada!'),
           ],
         ),
         backgroundColor: Colors.green[700],
@@ -127,7 +127,7 @@ class _RecommendModalContentState extends State<_RecommendModalContent> {
           Navigator.of(context).pop(true);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.error ?? 'Something went wrong')),
+            SnackBar(content: Text(state.error ?? 'Algo salió mal')),
           );
         }
       },
@@ -231,7 +231,7 @@ class _MovieInfoHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Recommend',
+                'Recomendar',
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.w600,
@@ -303,7 +303,7 @@ class _TagsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'How would you describe it?',
+          '¿Cómo la describirías?',
           style: Theme.of(
             context,
           ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
@@ -342,7 +342,7 @@ class _CommentField extends StatelessWidget {
       maxLines: 3,
       maxLength: 280,
       decoration: const InputDecoration(
-        hintText: 'Add a comment (optional)…',
+        hintText: 'Agregar un comentario (opcional)…',
         border: OutlineInputBorder(),
         contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       ),
@@ -375,7 +375,7 @@ class _SubmitButton extends StatelessWidget {
                     ),
                   )
                 : const Icon(Icons.send),
-            label: Text(isSubmitting ? 'Sending…' : 'Send Recommendation'),
+            label: Text(isSubmitting ? 'Enviando…' : 'Enviar recomendación'),
           ),
         );
       },
@@ -396,7 +396,7 @@ class _PastRecommendations extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Recommendations (${state.recommendations.length})',
+              'Recomendaciones (${state.recommendations.length})',
               style: Theme.of(
                 context,
               ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
@@ -407,7 +407,7 @@ class _PastRecommendations extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Center(
                   child: Text(
-                    'No recommendations yet. Be the first!',
+                    'Sin recomendaciones aún. ¡Sé el primero!',
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium?.copyWith(color: Colors.grey),

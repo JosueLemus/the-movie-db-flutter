@@ -82,7 +82,7 @@ class _MaintenanceBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: const Text(
-        'App under maintenance.\nPlease try again later.',
+        'App en mantenimiento.\nIntentá de nuevo más tarde.',
         textAlign: TextAlign.center,
         style: TextStyle(color: Colors.white),
       ),

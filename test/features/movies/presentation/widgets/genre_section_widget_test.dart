@@ -105,7 +105,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Failed to load movies'), findsOneWidget);
+      expect(find.text('Error al cargar películas'), findsOneWidget);
     });
 
     testWidgets('calls onMovieTap when a movie card is tapped', (tester) async {

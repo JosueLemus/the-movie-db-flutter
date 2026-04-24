@@ -92,7 +92,10 @@ class _ErrorRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: Text('Failed to load movies', style: TextStyle(color: Colors.red)),
+      child: Text(
+        'Error al cargar películas',
+        style: TextStyle(color: Colors.red),
+      ),
     );
   }
 }

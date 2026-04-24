@@ -87,7 +87,7 @@ class _ErrorScaffold extends StatelessWidget {
           children: [
             const Icon(Icons.error_outline, size: 48, color: Colors.red),
             const SizedBox(height: 16),
-            Text(message ?? 'Something went wrong'),
+            Text(message ?? 'Algo salió mal'),
           ],
         ),
       ),
@@ -133,13 +133,6 @@ class _LoadedScaffold extends StatelessWidget {
                 ),
                 onPressed: cubit.toggleFavorite,
               ),
-              IconButton(
-                icon: const Icon(
-                  Icons.share_outlined,
-                  color: Colors.white,
-                ),
-                onPressed: () {},
-              ),
               const SizedBox(width: 4),
             ],
             flexibleSpace: FlexibleSpaceBar(
@@ -160,7 +153,7 @@ class _LoadedScaffold extends StatelessWidget {
           showRecommendModal(context, movie: movie),
         ),
         icon: const Icon(Icons.rate_review_outlined),
-        label: const Text('Recommend'),
+        label: const Text('Recomendar'),
       ),
     );
   }
@@ -399,7 +392,7 @@ class _DetailBody extends StatelessWidget {
           if (movie.overview.isNotEmpty) ...[
             const SizedBox(height: 24),
             Text(
-              'Storyline',
+              'Historia',
               style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 8),
@@ -413,12 +406,8 @@ class _DetailBody extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Cast & Crew',
+                  'Elenco',
                   style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('See all'),
                 ),
               ],
             ),
@@ -463,13 +452,13 @@ class _StatsRow extends StatelessWidget {
           _Divider(),
           _StatCell(
             value: runtimeStr,
-            label: 'Runtime',
+            label: 'Duración',
             icon: Icons.access_time_rounded,
           ),
           _Divider(),
           _StatCell(
             value: year,
-            label: 'Released',
+            label: 'Estreno',
             icon: Icons.calendar_today_rounded,
           ),
         ],
@@ -598,7 +587,7 @@ class _ExpandableOverviewState extends State<_ExpandableOverview> {
           child: Padding(
             padding: const EdgeInsets.only(top: 6),
             child: Text(
-              _expanded ? 'Show less' : 'Read more →',
+              _expanded ? 'Ver menos' : 'Leer más →',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.w600,

@@ -61,7 +61,10 @@ class MovieRemoteDataSourceImpl implements MovieRemoteDataSource {
     final results = await Future.wait([
       _dio.get<Map<String, dynamic>>(
         '/movie/$movieId',
-        queryParameters: {'append_to_response': 'images'},
+        queryParameters: {
+          'append_to_response': 'images',
+          'include_image_language': 'null',
+        },
       ),
       _dio.get<Map<String, dynamic>>('/movie/$movieId/credits'),
     ]);

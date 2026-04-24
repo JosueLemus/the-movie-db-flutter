@@ -56,7 +56,7 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'No internet — showing cached content',
+                        'Sin internet — mostrando contenido guardado',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
