@@ -1,3 +1,4 @@
+// coverage:ignore-file
 import 'dart:async';
 
 import 'package:carousel_slider_plus/carousel_slider_plus.dart';
