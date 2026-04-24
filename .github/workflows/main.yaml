@@ -38,8 +38,7 @@ jobs:
       - name: Bloc Lint
         run: |
           dart pub global activate bloc_lint
-          export PATH="$HOME/.pub-cache/bin:$PATH"
-          bloc_lint analyze
+          dart pub global run bloc_lint analyze
 
       - name: Run Tests
         run: flutter test --coverage
