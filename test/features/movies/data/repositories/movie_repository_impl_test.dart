@@ -200,7 +200,7 @@ void main() {
 
   // ---- getMovieDetail
   group('getMovieDetail', () {
-    final tDetail = MovieDetailModel(
+    const tDetail = MovieDetailModel(
       movie: const MovieModel(
         id: 1,
         title: 'Die Hard',

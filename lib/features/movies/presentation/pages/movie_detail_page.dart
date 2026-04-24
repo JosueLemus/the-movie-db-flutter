@@ -78,7 +78,7 @@ class _LoadingScaffold extends StatelessWidget {
 }
 
 class _ErrorScaffold extends StatelessWidget {
-  const _ErrorScaffold({this.message, required this.onRetry});
+  const _ErrorScaffold({required this.onRetry, this.message});
 
   final String? message;
   final VoidCallback onRetry;
