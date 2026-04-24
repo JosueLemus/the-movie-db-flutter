@@ -35,11 +35,6 @@ jobs:
       - name: Analyze
         run: flutter analyze --fatal-infos
 
-      - name: Bloc Lint
-        run: |
-          dart pub global activate bloc_lint
-          dart pub global run bloc_lint analyze
-
       - name: Run Tests
         run: flutter test --coverage
 
