@@ -159,15 +159,42 @@ void main() {
 
   // ---- getPopularMovies
   group('getPopularMovies', () {
-    test('delegates directly to remote datasource', () async {
+    test('fetches from remote, caches, and returns movies', () async {
       when(
         () => mockRemote.getPopularMovies(),
       ).thenAnswer((_) async => tMovieModels);
+      when(
+        () => mockLocal.cachePopularMovies(tMovieModels),
+      ).thenAnswer((_) async {});
 
       final result = await repository.getPopularMovies();
 
       expect(result, equals(tMovieModels));
-      verify(() => mockRemote.getPopularMovies()).called(1);
+      verify(() => mockLocal.cachePopularMovies(tMovieModels)).called(1);
+    });
+
+    test('falls back to cache when remote throws', () async {
+      when(
+        () => mockRemote.getPopularMovies(),
+      ).thenThrow(Exception('network error'));
+      when(
+        () => mockLocal.getCachedPopularMovies(),
+      ).thenReturn(tMovieModels);
+
+      final result = await repository.getPopularMovies();
+
+      expect(result, equals(tMovieModels));
+    });
+
+    test('rethrows when remote throws and cache is empty', () async {
+      when(
+        () => mockRemote.getPopularMovies(),
+      ).thenThrow(Exception('network error'));
+      when(
+        () => mockLocal.getCachedPopularMovies(),
+      ).thenReturn([]);
+
+      expect(() => repository.getPopularMovies(), throwsException);
     });
   });
 

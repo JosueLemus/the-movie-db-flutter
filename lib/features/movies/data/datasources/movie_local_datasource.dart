@@ -11,6 +11,8 @@ abstract interface class MovieLocalDataSource {
   List<GenreModel> getCachedGenres();
   Future<void> cacheMoviesByGenre(int genreId, List<MovieModel> movies);
   List<MovieModel> getCachedMoviesByGenre(int genreId);
+  Future<void> cachePopularMovies(List<MovieModel> movies);
+  List<MovieModel> getCachedPopularMovies();
   Future<void> cacheMovieDetail(MovieDetailModel detail);
   MovieDetailModel? getCachedMovieDetail(int movieId);
   Future<void> toggleFavorite(MovieModel movie);
@@ -24,6 +26,7 @@ class MovieLocalDataSourceImpl implements MovieLocalDataSource {
   final Box<bool> _favoritesBox;
 
   static const _genresKey = 'genres';
+  static const _popularKey = 'popular';
   static String _moviesKey(int genreId) => 'movies_$genreId';
   static String _detailKey(int movieId) => 'detail_$movieId';
 
@@ -57,6 +60,22 @@ class MovieLocalDataSourceImpl implements MovieLocalDataSource {
   @override
   List<MovieModel> getCachedMoviesByGenre(int genreId) {
     final raw = _box.get(_moviesKey(genreId));
+    if (raw == null) return [];
+    final list = jsonDecode(raw) as List<dynamic>;
+    return list
+        .map((e) => MovieModel.fromCacheJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
+  Future<void> cachePopularMovies(List<MovieModel> movies) async {
+    final encoded = jsonEncode(movies.map((m) => m.toCacheJson()).toList());
+    await _box.put(_popularKey, encoded);
+  }
+
+  @override
+  List<MovieModel> getCachedPopularMovies() {
+    final raw = _box.get(_popularKey);
     if (raw == null) return [];
     final list = jsonDecode(raw) as List<dynamic>;
     return list

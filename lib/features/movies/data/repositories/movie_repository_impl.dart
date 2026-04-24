@@ -49,7 +49,17 @@ class MovieRepositoryImpl implements MovieRepository {
   }
 
   @override
-  Future<List<Movie>> getPopularMovies() => _remote.getPopularMovies();
+  Future<List<Movie>> getPopularMovies() async {
+    try {
+      final movies = await _remote.getPopularMovies();
+      await _local.cachePopularMovies(movies);
+      return movies;
+    } on Exception {
+      final cached = _local.getCachedPopularMovies();
+      if (cached.isEmpty) rethrow;
+      return cached;
+    }
+  }
 
   @override
   Future<MovieDetail> getMovieDetail(int movieId) async {
