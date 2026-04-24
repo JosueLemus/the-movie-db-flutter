@@ -44,14 +44,14 @@ Future<void> initDependencies({required String tmdbApiKey}) async {
 Future<void> _initCore({required String tmdbApiKey}) async {
   final prefs = await SharedPreferences.getInstance();
 
+  final connectivityService = ConnectivityService(Connectivity());
+
   sl
     ..registerSingleton<SharedPreferences>(prefs)
-    ..registerSingleton<Dio>(createDioClient(tmdbApiKey))
+    ..registerSingleton<ConnectivityService>(connectivityService)
+    ..registerSingleton<Dio>(createDioClient(tmdbApiKey, connectivityService))
     ..registerSingleton<FirebaseRemoteConfig>(FirebaseRemoteConfig.instance)
     ..registerSingleton<FirebaseFirestore>(FirebaseFirestore.instance)
-    ..registerSingleton<ConnectivityService>(
-      ConnectivityService(Connectivity()),
-    )
     ..registerSingleton<RemoteConfigService>(
       RemoteConfigService(
         sl<FirebaseRemoteConfig>(),

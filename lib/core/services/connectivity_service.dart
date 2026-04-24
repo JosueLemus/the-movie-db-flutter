@@ -1,13 +1,24 @@
+import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 class ConnectivityService {
-  const ConnectivityService(this._connectivity);
+  ConnectivityService(this._connectivity) {
+    _connectivity.onConnectivityChanged.listen((results) {
+      final connected = results.any((r) => r != ConnectivityResult.none);
+      if (!_controller.isClosed) _controller.add(connected);
+    });
+  }
 
   final Connectivity _connectivity;
+  final _controller = StreamController<bool>.broadcast();
 
-  Stream<bool> get isConnectedStream => _connectivity.onConnectivityChanged.map(
-    (results) => results.any((r) => r != ConnectivityResult.none),
-  );
+  /// Called by the HTTP success interceptor when any request completes.
+  void markOnline() {
+    if (!_controller.isClosed) _controller.add(true);
+  }
+
+  Stream<bool> get isConnectedStream => _controller.stream;
 
   Future<bool> get isConnected async {
     final results = await _connectivity.checkConnectivity();
