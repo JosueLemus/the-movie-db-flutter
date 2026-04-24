@@ -25,28 +25,40 @@
 
 ### Pantallas
 
-<p align="center">
-  <img src="docs/screenshot_home.png" alt="Inicio" width="45%" />
-  &nbsp;&nbsp;
-  <img src="docs/screenshot_detail.png" alt="Detalle de película" width="45%" />
-</p>
-
-### Videos
-
 <table>
   <tr>
-    <th align="center">Subir recomendación</th>
-    <th align="center">Modo offline</th>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="docs/gif_recommend.gif" alt="Subir recomendación" width="100%" />
+    <td align="center" width="50%">
+      <img src="docs/screenshot_home.png" alt="Inicio" width="100%" /><br/>
+      <strong>Inicio</strong><br/>
+      <sub>Géneros con listas horizontales anidadas y carrusel de populares con auto-play.</sub>
     </td>
-    <td align="center">
-      <img src="docs/gif_offline.gif" alt="Modo offline" width="100%" />
+    <td align="center" width="50%">
+      <img src="docs/screenshot_detail.png" alt="Detalle" width="100%" /><br/>
+      <strong>Detalle de película</strong><br/>
+      <sub>Carrusel de imágenes, stats, géneros, sinopsis expandible y elenco.</sub>
     </td>
   </tr>
 </table>
+
+### Modo offline
+
+> La app guarda en caché géneros, listas de películas y detalle completo al navegar con conexión.
+> Al perder internet se muestra un banner rojo y el contenido ya visitado sigue disponible.
+> Cuando la conexión se restaura (detectado por la primera request exitosa) el banner cambia a verde.
+
+<p align="center">
+  <img src="docs/gif_offline.gif" alt="Modo offline" width="55%" />
+</p>
+
+### Sistema de recomendaciones
+
+> Desde el detalle de cualquier película podés abrir el modal de recomendación,
+> elegir etiquetas descriptivas, agregar un comentario opcional y enviar.
+> La recomendación se guarda en Firestore y aparece en el historial del modal al instante.
+
+<p align="center">
+  <img src="docs/gif_recommend.gif" alt="Subir recomendación" width="55%" />
+</p>
 
 ---
 
