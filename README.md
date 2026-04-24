@@ -100,31 +100,29 @@ cd the-movie-db-flutter
 flutter pub get
 ```
 
-Abrí el archivo del flavor que querés correr y reemplazá el placeholder con tu token TMDB:
-
-| Archivo | Flavor |
-|---|---|
-| `lib/main_development.dart` | Development |
-| `lib/main_staging.dart` | Staging |
-| `lib/main_production.dart` | Production |
-
-```dart
-// Ejemplo en main_development.dart
-await initDependencies(tmdbApiKey: 'TU_BEARER_TOKEN_ACÁ');
-```
-
-Luego ejecutá:
+El token de TMDB se pasa en tiempo de compilación con `--dart-define`. No es necesario tocar ningún archivo de código:
 
 ```sh
-# Development (recomendado para pruebas)
-flutter run --flavor development --target lib/main_development.dart
+# Development (recomendado)
+flutter run \
+  --flavor development \
+  --target lib/main_development.dart \
+  --dart-define=TMDB_API_KEY=TU_BEARER_TOKEN_ACA
 
 # Staging
-flutter run --flavor staging --target lib/main_staging.dart
+flutter run \
+  --flavor staging \
+  --target lib/main_staging.dart \
+  --dart-define=TMDB_API_KEY=TU_BEARER_TOKEN_ACA
 
 # Production
-flutter run --flavor production --target lib/main_production.dart
+flutter run \
+  --flavor production \
+  --target lib/main_production.dart \
+  --dart-define=TMDB_API_KEY=TU_BEARER_TOKEN_ACA
 ```
+
+Reemplazá `TU_BEARER_TOKEN_ACA` con tu Bearer token de [The Movie DB](https://www.themoviedb.org/settings/api).
 
 > **Firebase ya está configurado** — el repositorio incluye los archivos `google-services.json` y `GoogleService-Info.plist` del proyecto Firebase del autor. No necesitás crear tu propio proyecto.
 
