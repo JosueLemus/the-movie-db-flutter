@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:the_movie_db/core/router/app_router.dart';
 import 'package:the_movie_db/core/theme/app_theme.dart';
+import 'package:the_movie_db/core/widgets/connectivity_banner.dart';
 import 'package:the_movie_db/l10n/l10n.dart';
 
 final themeNotifier = ValueNotifier<ThemeMode>(ThemeMode.dark);
@@ -20,6 +21,8 @@ class App extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
+        builder: (context, child) =>
+            ConnectivityBanner(child: child ?? const SizedBox.shrink()),
       ),
     );
   }

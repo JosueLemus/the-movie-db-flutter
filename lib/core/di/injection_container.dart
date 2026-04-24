@@ -1,11 +1,13 @@
 // coverage:ignore-file
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_movie_db/core/network/dio_client.dart';
+import 'package:the_movie_db/core/services/connectivity_service.dart';
 import 'package:the_movie_db/core/services/remote_config_service.dart';
 import 'package:the_movie_db/features/movies/data/datasources/movie_local_datasource.dart';
 import 'package:the_movie_db/features/movies/data/datasources/movie_remote_datasource.dart';
@@ -47,6 +49,9 @@ Future<void> _initCore({required String tmdbApiKey}) async {
     ..registerSingleton<Dio>(createDioClient(tmdbApiKey))
     ..registerSingleton<FirebaseRemoteConfig>(FirebaseRemoteConfig.instance)
     ..registerSingleton<FirebaseFirestore>(FirebaseFirestore.instance)
+    ..registerSingleton<ConnectivityService>(
+      ConnectivityService(Connectivity()),
+    )
     ..registerSingleton<RemoteConfigService>(
       RemoteConfigService(
         sl<FirebaseRemoteConfig>(),
