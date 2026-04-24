@@ -5,8 +5,7 @@
 </p>
 
 <p align="center">
-  App Flutter construida para el <strong>PinApp Mobile Architecture Challenge</strong>.<br/>
-  Categorías de películas con listas anidadas, detalle con carrusel de imágenes,<br/>
+  App Flutter con categorías de películas, detalle con carrusel de imágenes,<br/>
   sistema de recomendaciones con Firestore y soporte offline con caché local.
 </p>
 
@@ -41,10 +40,10 @@
   </tr>
   <tr>
     <td align="center">
-      <video src="docs/video_recommend.mp4" controls width="100%"></video>
+      <img src="docs/gif_recommend.gif" alt="Subir recomendación" width="100%" />
     </td>
     <td align="center">
-      <video src="docs/video_offline.mp4" controls width="100%"></video>
+      <img src="docs/gif_offline.gif" alt="Modo offline" width="100%" />
     </td>
   </tr>
 </table>
