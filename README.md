@@ -1,10 +1,6 @@
 # The Movie DB
 
 <p align="center">
-  <img src="docs/app_icon.png" width="96" alt="App icon" />
-</p>
-
-<p align="center">
   App Flutter construida para el <strong>PinApp Mobile Architecture Challenge</strong>.<br/>
   Categorías de películas con listas anidadas, detalle con carrusel de imágenes,<br/>
   sistema de recomendaciones con Firestore y soporte offline con caché local.
@@ -124,7 +120,24 @@ flutter run \
 
 Reemplazá `TU_BEARER_TOKEN_ACA` con tu Bearer token de [The Movie DB](https://www.themoviedb.org/settings/api).
 
-> **Firebase ya está configurado** — el repositorio incluye los archivos `google-services.json` y `GoogleService-Info.plist` del proyecto Firebase del autor. No necesitás crear tu propio proyecto.
+### Firebase
+
+El proyecto usa **dos proyectos Firebase** ya configurados (uno por ambiente):
+
+| Flavor | Proyecto Firebase | Archivo de opciones |
+|---|---|---|
+| `development` / `staging` | Firebase Dev | `lib/firebase/firebase_options_dev.dart` |
+| `production` | Firebase Prod | `lib/firebase/firebase_options_prod.dart` |
+
+Los archivos `google-services.json` (Android) y `GoogleService-Info.plist` (iOS) ya están incluidos en el repositorio para ambos ambientes. **No es necesario crear ni configurar un proyecto Firebase propio.**
+
+Servicios utilizados:
+
+| Servicio | Uso |
+|---|---|
+| **Remote Config** | Lee `welcome_message` y `maintenance_mode` al iniciar (Splash). Fallback a `SharedPreferences` cuando no hay conexión. |
+| **Cloud Firestore** | Almacena y consulta recomendaciones de películas en la colección `recommendations/{movieId}/entries`. |
+| **Analytics** | Registro de eventos de navegación. |
 
 ---
 
