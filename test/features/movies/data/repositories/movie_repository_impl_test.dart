@@ -303,4 +303,51 @@ void main() {
       verify(() => mockLocal.toggleFavorite(any())).called(1);
     });
   });
+
+  // ---- getMovieCredits
+  group('getMovieCredits', () {
+    test('delegates to remote datasource', () async {
+      const tCastMember = CastMemberModel(
+        id: 10,
+        name: 'Bruce Willis',
+        character: 'John McClane',
+        profilePath: '/bruce.jpg',
+      );
+      when(
+        () => mockRemote.getMovieCredits(1),
+      ).thenAnswer((_) async => [tCastMember]);
+
+      final result = await repository.getMovieCredits(1);
+
+      expect(result.length, equals(1));
+      expect(result.first.name, equals('Bruce Willis'));
+      verify(() => mockRemote.getMovieCredits(1)).called(1);
+    });
+  });
+
+  // ---- getCachedMoviesByGenre
+  group('getCachedMoviesByGenre', () {
+    test('delegates to local datasource', () async {
+      when(
+        () => mockLocal.getCachedMoviesByGenre(28),
+      ).thenReturn(tMovieModels);
+
+      final result = await repository.getCachedMoviesByGenre(28);
+
+      expect(result, equals(tMovieModels));
+      verify(() => mockLocal.getCachedMoviesByGenre(28)).called(1);
+    });
+  });
+
+  // ---- getCachedGenres
+  group('getCachedGenres', () {
+    test('delegates to local datasource', () async {
+      when(() => mockLocal.getCachedGenres()).thenReturn(tGenreModels);
+
+      final result = await repository.getCachedGenres();
+
+      expect(result, equals(tGenreModels));
+      verify(() => mockLocal.getCachedGenres()).called(1);
+    });
+  });
 }

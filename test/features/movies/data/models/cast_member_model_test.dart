@@ -57,5 +57,20 @@ void main() {
       });
       expect(model.profilePath, equals(''));
     });
+
+    test('toJson serializes all fields correctly', () {
+      final model = CastMemberModel.fromJson(tJson);
+      final json = model.toJson();
+      expect(json['id'], equals(819));
+      expect(json['name'], equals('Edward Norton'));
+      expect(json['character'], equals('The Narrator'));
+      expect(json['profile_path'], equals('/eIkFHNlfretLS1spAcIoihKUS62.jpg'));
+    });
+
+    test('toJson round-trips through fromJson', () {
+      final original = CastMemberModel.fromJson(tJson);
+      final roundTripped = CastMemberModel.fromJson(original.toJson());
+      expect(roundTripped, equals(original));
+    });
   });
 }

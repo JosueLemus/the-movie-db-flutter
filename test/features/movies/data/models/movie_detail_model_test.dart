@@ -136,5 +136,99 @@ void main() {
       final model = MovieDetailModel.fromJson(tDetailJson, tCreditsJson);
       expect(model, isA<MovieDetail>());
     });
+
+    // ---- fromCacheJson
+    group('fromCacheJson', () {
+      final tCacheJson = <String, dynamic>{
+        'movie': {
+          'id': 550,
+          'title': 'Fight Club',
+          'overview': 'A ticking-time-bomb insomniac...',
+          'poster_path': '/poster.jpg',
+          'backdrop_path': '/backdrop.jpg',
+          'vote_average': 8.4,
+          'release_date': '1999-10-15',
+          'is_favorite': false,
+        },
+        'tagline': 'Mischief. Mayhem. Soap.',
+        'runtime': 139,
+        'backdrop_paths': ['/backdrop.jpg', '/img1.jpg'],
+        'cast': [
+          {
+            'id': 819,
+            'name': 'Edward Norton',
+            'character': 'The Narrator',
+            'profile_path': '/profile1.jpg',
+          },
+        ],
+        'genre_names': ['Drama', 'Thriller'],
+      };
+
+      test('parses movie correctly', () {
+        final model = MovieDetailModel.fromCacheJson(tCacheJson);
+        expect(model.movie.id, equals(550));
+        expect(model.movie.title, equals('Fight Club'));
+      });
+
+      test('parses tagline correctly', () {
+        final model = MovieDetailModel.fromCacheJson(tCacheJson);
+        expect(model.tagline, equals('Mischief. Mayhem. Soap.'));
+      });
+
+      test('parses runtime correctly', () {
+        final model = MovieDetailModel.fromCacheJson(tCacheJson);
+        expect(model.runtime, equals(139));
+      });
+
+      test('parses backdropPaths correctly', () {
+        final model = MovieDetailModel.fromCacheJson(tCacheJson);
+        expect(model.backdropPaths, equals(['/backdrop.jpg', '/img1.jpg']));
+      });
+
+      test('parses cast correctly', () {
+        final model = MovieDetailModel.fromCacheJson(tCacheJson);
+        expect(model.cast.length, equals(1));
+        expect(model.cast.first.name, equals('Edward Norton'));
+      });
+
+      test('parses genreNames correctly', () {
+        final model = MovieDetailModel.fromCacheJson(tCacheJson);
+        expect(model.genreNames, equals(['Drama', 'Thriller']));
+      });
+    });
+
+    // ---- toJson
+    group('toJson', () {
+      test('serializes all fields correctly', () {
+        final model = MovieDetailModel.fromJson(tDetailJson, tCreditsJson);
+        final json = model.toJson();
+        expect(json['tagline'], equals('Mischief. Mayhem. Soap.'));
+        expect(json['runtime'], equals(139));
+        expect(json['genre_names'], equals(['Drama', 'Thriller']));
+        expect(json['backdrop_paths'], isA<List<dynamic>>());
+        expect(json['cast'], isA<List<dynamic>>());
+        expect(json['movie'], isA<Map<String, dynamic>>());
+      });
+
+      test('round-trips through fromCacheJson', () {
+        final original = MovieDetailModel.fromJson(tDetailJson, tCreditsJson);
+        final json = original.toJson();
+        final roundTripped = MovieDetailModel.fromCacheJson(json);
+        expect(roundTripped.movie.id, equals(original.movie.id));
+        expect(roundTripped.tagline, equals(original.tagline));
+        expect(roundTripped.runtime, equals(original.runtime));
+        expect(roundTripped.genreNames, equals(original.genreNames));
+        expect(roundTripped.cast.length, equals(original.cast.length));
+      });
+
+      test('cast entries serialize id, name, character, profile_path', () {
+        final model = MovieDetailModel.fromJson(tDetailJson, tCreditsJson);
+        final json = model.toJson();
+        final castList = json['cast'] as List<dynamic>;
+        final firstCast = castList.first as Map<String, dynamic>;
+        expect(firstCast['id'], equals(819));
+        expect(firstCast['name'], equals('Edward Norton'));
+      });
+    });
   });
 }
