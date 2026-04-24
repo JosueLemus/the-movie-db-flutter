@@ -201,7 +201,7 @@ void main() {
   // ---- getMovieDetail
   group('getMovieDetail', () {
     const tDetail = MovieDetailModel(
-      movie: const MovieModel(
+      movie: MovieModel(
         id: 1,
         title: 'Die Hard',
         overview: 'Action classic.',
@@ -212,8 +212,8 @@ void main() {
       ),
       tagline: 'Yippee-ki-yay',
       runtime: 131,
-      backdropPaths: const ['/backdrop.jpg'],
-      cast: const [
+      backdropPaths: ['/backdrop.jpg'],
+      cast: [
         CastMemberModel(
           id: 10,
           name: 'Bruce Willis',
@@ -221,7 +221,7 @@ void main() {
           profilePath: '/bruce.jpg',
         ),
       ],
-      genreNames: const ['Action'],
+      genreNames: ['Action'],
     );
 
     test('fetches from remote, caches, and returns detail', () async {
