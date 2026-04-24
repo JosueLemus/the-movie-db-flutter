@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:the_movie_db/features/movies/data/models/genre_model.dart';
+import 'package:the_movie_db/features/movies/data/models/movie_detail_model.dart';
 import 'package:the_movie_db/features/movies/data/models/movie_model.dart';
 
 // SRP: owns all local persistence for movies
@@ -10,6 +11,8 @@ abstract interface class MovieLocalDataSource {
   List<GenreModel> getCachedGenres();
   Future<void> cacheMoviesByGenre(int genreId, List<MovieModel> movies);
   List<MovieModel> getCachedMoviesByGenre(int genreId);
+  Future<void> cacheMovieDetail(MovieDetailModel detail);
+  MovieDetailModel? getCachedMovieDetail(int movieId);
   Future<void> toggleFavorite(MovieModel movie);
   bool isFavorite(int movieId);
 }
@@ -22,6 +25,7 @@ class MovieLocalDataSourceImpl implements MovieLocalDataSource {
 
   static const _genresKey = 'genres';
   static String _moviesKey(int genreId) => 'movies_$genreId';
+  static String _detailKey(int movieId) => 'detail_$movieId';
 
   @override
   Future<void> cacheGenres(List<GenreModel> genres) async {
@@ -58,6 +62,21 @@ class MovieLocalDataSourceImpl implements MovieLocalDataSource {
     return list
         .map((e) => MovieModel.fromCacheJson(e as Map<String, dynamic>))
         .toList();
+  }
+
+  @override
+  Future<void> cacheMovieDetail(MovieDetailModel detail) async {
+    final encoded = jsonEncode(detail.toJson());
+    await _box.put(_detailKey(detail.movie.id), encoded);
+  }
+
+  @override
+  MovieDetailModel? getCachedMovieDetail(int movieId) {
+    final raw = _box.get(_detailKey(movieId));
+    if (raw == null) return null;
+    return MovieDetailModel.fromCacheJson(
+      jsonDecode(raw) as Map<String, dynamic>,
+    );
   }
 
   @override

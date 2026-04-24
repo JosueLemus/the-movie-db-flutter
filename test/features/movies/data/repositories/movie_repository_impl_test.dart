@@ -2,7 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:the_movie_db/features/movies/data/datasources/movie_local_datasource.dart';
 import 'package:the_movie_db/features/movies/data/datasources/movie_remote_datasource.dart';
+import 'package:the_movie_db/features/movies/data/models/cast_member_model.dart';
 import 'package:the_movie_db/features/movies/data/models/genre_model.dart';
+import 'package:the_movie_db/features/movies/data/models/movie_detail_model.dart';
 import 'package:the_movie_db/features/movies/data/models/movie_model.dart';
 import 'package:the_movie_db/features/movies/data/repositories/movie_repository_impl.dart';
 import 'package:the_movie_db/features/movies/domain/entities/movie.dart';
@@ -13,6 +15,8 @@ class MockMovieLocalDataSource extends Mock implements MovieLocalDataSource {}
 
 class FakeMovieModel extends Fake implements MovieModel {}
 
+class FakeMovieDetailModel extends Fake implements MovieDetailModel {}
+
 void main() {
   late MockMovieRemoteDataSource mockRemote;
   late MockMovieLocalDataSource mockLocal;
@@ -20,6 +24,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(FakeMovieModel());
+    registerFallbackValue(FakeMovieDetailModel());
   });
 
   setUp(() {
@@ -163,6 +168,71 @@ void main() {
 
       expect(result, equals(tMovieModels));
       verify(() => mockRemote.getPopularMovies()).called(1);
+    });
+  });
+
+  // ---- getMovieDetail
+  group('getMovieDetail', () {
+    final tDetail = MovieDetailModel(
+      movie: const MovieModel(
+        id: 1,
+        title: 'Die Hard',
+        overview: 'Action classic.',
+        posterPath: '/poster.jpg',
+        backdropPath: '/backdrop.jpg',
+        voteAverage: 8.2,
+        releaseDate: '1988-07-15',
+      ),
+      tagline: 'Yippee-ki-yay',
+      runtime: 131,
+      backdropPaths: const ['/backdrop.jpg'],
+      cast: const [
+        CastMemberModel(
+          id: 10,
+          name: 'Bruce Willis',
+          character: 'John McClane',
+          profilePath: '/bruce.jpg',
+        ),
+      ],
+      genreNames: const ['Action'],
+    );
+
+    test('fetches from remote, caches, and returns detail', () async {
+      when(
+        () => mockRemote.getMovieDetail(1),
+      ).thenAnswer((_) async => tDetail);
+      when(
+        () => mockLocal.cacheMovieDetail(any()),
+      ).thenAnswer((_) async {});
+
+      final result = await repository.getMovieDetail(1);
+
+      expect(result, equals(tDetail));
+      verify(() => mockLocal.cacheMovieDetail(any())).called(1);
+    });
+
+    test('falls back to cache when remote throws', () async {
+      when(
+        () => mockRemote.getMovieDetail(1),
+      ).thenThrow(Exception('network error'));
+      when(
+        () => mockLocal.getCachedMovieDetail(1),
+      ).thenReturn(tDetail);
+
+      final result = await repository.getMovieDetail(1);
+
+      expect(result, equals(tDetail));
+    });
+
+    test('rethrows when remote throws and cache is null', () async {
+      when(
+        () => mockRemote.getMovieDetail(1),
+      ).thenThrow(Exception('network error'));
+      when(
+        () => mockLocal.getCachedMovieDetail(1),
+      ).thenReturn(null);
+
+      expect(() => repository.getMovieDetail(1), throwsException);
     });
   });
 

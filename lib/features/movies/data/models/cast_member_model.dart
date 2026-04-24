@@ -15,4 +15,11 @@ class CastMemberModel extends CastMember {
         character: json['character'] as String? ?? '',
         profilePath: json['profile_path'] as String? ?? '',
       );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'character': character,
+    'profile_path': profilePath,
+  };
 }

@@ -54,4 +54,33 @@ class MovieDetailModel extends MovieDetail {
       genreNames: genreNames,
     );
   }
+
+  factory MovieDetailModel.fromCacheJson(Map<String, dynamic> json) {
+    final castList = json['cast'] as List<dynamic>;
+    return MovieDetailModel(
+      movie: MovieModel.fromCacheJson(
+        json['movie'] as Map<String, dynamic>,
+      ),
+      tagline: json['tagline'] as String,
+      runtime: json['runtime'] as int,
+      backdropPaths: (json['backdrop_paths'] as List<dynamic>)
+          .cast<String>()
+          .toList(),
+      cast: castList
+          .map((e) => CastMemberModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      genreNames: (json['genre_names'] as List<dynamic>)
+          .cast<String>()
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'movie': (movie as MovieModel).toCacheJson(),
+    'tagline': tagline,
+    'runtime': runtime,
+    'backdrop_paths': backdropPaths,
+    'cast': cast.map((c) => (c as CastMemberModel).toJson()).toList(),
+    'genre_names': genreNames,
+  };
 }
