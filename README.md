@@ -1,6 +1,10 @@
 # The Movie DB
 
 <p align="center">
+  <img src="docs/poster.png" alt="The Movie DB" width="100%" />
+</p>
+
+<p align="center">
   App Flutter construida para el <strong>PinApp Mobile Architecture Challenge</strong>.<br/>
   Categorías de películas con listas anidadas, detalle con carrusel de imágenes,<br/>
   sistema de recomendaciones con Firestore y soporte offline con caché local.
@@ -20,11 +24,30 @@
 
 ## Demo
 
-> Reemplazá las imágenes de abajo con tus capturas o GIFs de la app en acción.
+### Pantallas
 
-| Inicio | Detalle | Modal de recomendación | Sin conexión |
-|:------:|:-------:|:----------------------:|:------------:|
-| ![Inicio](docs/screenshot_home.png) | ![Detalle](docs/screenshot_detail.png) | ![Modal](docs/screenshot_modal.png) | ![Offline](docs/screenshot_offline.png) |
+<p align="center">
+  <img src="docs/screenshot_home.png" alt="Inicio" width="45%" />
+  &nbsp;&nbsp;
+  <img src="docs/screenshot_detail.png" alt="Detalle de película" width="45%" />
+</p>
+
+### Videos
+
+<table>
+  <tr>
+    <th align="center">Subir recomendación</th>
+    <th align="center">Modo offline</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <video src="docs/video_recommend.mp4" controls width="100%"></video>
+    </td>
+    <td align="center">
+      <video src="docs/video_offline.mp4" controls width="100%"></video>
+    </td>
+  </tr>
+</table>
 
 ---
 
