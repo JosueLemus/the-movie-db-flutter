@@ -39,12 +39,19 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
     service.isConnectedStream.listen((connected) {
       if (!mounted) return;
       final wasOffline = _isConnected == false;
-      setState(() => _isConnected = connected);
+      _reconnectedTimer?.cancel();
       if (wasOffline && connected) {
-        _reconnectedTimer?.cancel();
-        setState(() => _showReconnected = true);
+        setState(() {
+          _isConnected = connected;
+          _showReconnected = true;
+        });
         _reconnectedTimer = Timer(const Duration(seconds: 3), () {
           if (mounted) setState(() => _showReconnected = false);
+        });
+      } else {
+        setState(() {
+          _isConnected = connected;
+          _showReconnected = false;
         });
       }
     });
